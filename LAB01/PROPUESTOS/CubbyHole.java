@@ -5,7 +5,9 @@ public class CubbyHole{
         while (available == false) {
             try {
                 wait();
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // restaurar flag de interrupción
+            }
         }
         available = false;
         notifyAll();
@@ -15,7 +17,9 @@ public class CubbyHole{
         while (available == true) {
             try {
                 wait();
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // restaurar flag de interrupción
+            }
         }
         contents = value;
         available = true;
