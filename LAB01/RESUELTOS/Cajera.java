@@ -6,7 +6,7 @@ public class Cajera {
 }
 
 public Cajera(String nombre) {
-this.nombre = nombre;
+    this.nombre = nombre;
 }
 
     public String getNombre() {
@@ -30,7 +30,6 @@ this.nombre = nombre;
 
                     " ->Tiempo: " + (System.currentTimeMillis() - timeStamp) / 1000 +
                     "seg");
-
         }
         System.out.println("La cajera " + this.nombre + " HA TERMINADO DE PROCESAR " +
                 cliente.getNombre() + " EN EL TIEMPO: " +

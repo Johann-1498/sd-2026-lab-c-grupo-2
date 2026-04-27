@@ -2,6 +2,7 @@ public class CajeraThread extends Thread {
     private String nombre;
     private Cliente cliente;
     private long initialTime;
+    
     public CajeraThread() {}
     public CajeraThread(String nombre, Cliente cliente, long initialTime) {
         this.nombre = nombre;

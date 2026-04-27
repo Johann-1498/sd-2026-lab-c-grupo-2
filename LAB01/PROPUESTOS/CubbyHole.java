@@ -1,6 +1,6 @@
 public class CubbyHole{ 
-    private int contents;
-    private boolean available = false;
+    private int contents; // 
+    private boolean available = false; //si es que hay un dato disponible
     public synchronized int get() {
         while (available == false) {
             try {
