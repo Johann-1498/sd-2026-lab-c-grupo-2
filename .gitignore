@@ -1,0 +1,27 @@
+# Java compilado
+*.class
+
+# Logs y temporales
+*.log
+*.tmp
+*.out
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/
+build/
+dist/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Tu proyecto
+repomix-output.xml
