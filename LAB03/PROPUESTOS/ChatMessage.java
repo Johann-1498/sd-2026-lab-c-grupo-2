@@ -1,4 +1,3 @@
-package SD.LAB.LAB03.PROPUESTOS;
 
 import java.io.*;
 /*
