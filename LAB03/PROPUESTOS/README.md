@@ -1,8 +1,8 @@
-\# LAB 03 – Chat Cliente-Servidor
+LAB 03 – Chat Cliente-Servidor
 
 
 
-\## ▶️ Cómo ejecutar el servidor
+Cómo ejecutar el servidor
 
 
 
