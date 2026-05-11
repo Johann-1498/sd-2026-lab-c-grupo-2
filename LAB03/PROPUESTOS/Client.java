@@ -123,7 +123,7 @@ public class Client {
                 }
                 catch(IOException e) {
                     display(notif + "Server disconnected: " + e + notif);
-                    break;
+                    break;  
                 }
                 catch(ClassNotFoundException e) {}
             }

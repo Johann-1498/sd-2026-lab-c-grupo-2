@@ -4,7 +4,6 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-// the server that can be run as a console
 public class Server {
 
     private static int uniqueId;
