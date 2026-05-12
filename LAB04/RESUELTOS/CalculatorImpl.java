@@ -1,5 +1,3 @@
-package LAB04.RESUELTOS;
-
 public class CalculatorImpl
         extends java.rmi.server.UnicastRemoteObject
         implements Calculator {

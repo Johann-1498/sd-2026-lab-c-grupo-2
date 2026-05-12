@@ -1,5 +1,3 @@
-package LAB04.RESUELTOS;
-
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 

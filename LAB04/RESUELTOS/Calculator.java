@@ -1,5 +1,3 @@
-package LAB04.RESUELTOS;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

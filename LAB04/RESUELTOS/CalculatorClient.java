@@ -1,9 +1,7 @@
-package LAB04.RESUELTOS;
-
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 public class CalculatorClient {
     public static void main(String[] args) {
         int num1 = Integer.parseInt(args[0]);
