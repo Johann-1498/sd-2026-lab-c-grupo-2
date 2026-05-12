@@ -1,8 +1,12 @@
 package LAB04.RESUELTOS;
 
-public interface Calculator extends java.rmi.Remote {
-    public int add(int a, int b) throws java.rmi.RemoteException;
-    public int sub(int a, int b) throws java.rmi.RemoteException;
-    public int mul(int a, int b) throws java.rmi.RemoteException;
-    public int div(int a, int b) throws java.rmi.RemoteException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface Calculator extends Remote {
+
+    double add(double a, double b)throws RemoteException;
+    double sub(double a, double b)throws RemoteException;
+    double mul(double a, double b)throws RemoteException;
+    double div(double a, double b)throws RemoteException;
 }
