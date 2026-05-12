@@ -68,11 +68,10 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 
         try {
 
-            // Obtener números
-            int num1 = Integer.parseInt(txtNum1.getText());
-            int num2 = Integer.parseInt(txtNum2.getText());
+            double num1 = Double.parseDouble(txtNum1.getText().trim());
+            double num2 = Double.parseDouble(txtNum2.getText().trim());
 
-            int resultado = 0;
+            double resultado = 0;
 
             if (e.getSource() == btnSumar) {
 
@@ -98,7 +97,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 
             }
 
-            lblResultado.setText(String.valueOf(resultado));
+            lblResultado.setText(String.format("%.2f", resultado));
 
         }
 
