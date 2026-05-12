@@ -1,3 +1,4 @@
+package Medicinas;
 import java.rmi.Remote;
 import java.util.*;
 public interface StockInterface extends Remote {

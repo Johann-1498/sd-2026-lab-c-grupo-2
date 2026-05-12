@@ -1,3 +1,4 @@
+package Medicinas;
 import java.rmi.server.UnicastRemoteObject;
 /**
 * Este es la claes Medicina para este proyecto solo se puede comprar y

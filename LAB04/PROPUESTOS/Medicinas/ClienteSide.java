@@ -1,3 +1,4 @@
+package Medicinas;
 import java.rmi.Naming;
 import java.util.HashMap;
 import java.util.Scanner;
