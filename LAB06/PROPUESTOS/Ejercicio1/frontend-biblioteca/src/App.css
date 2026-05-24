@@ -1,0 +1,160 @@
+:root {
+  --bg: #f1f5f9;
+  --sidebar: #ffffff;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --danger: #ef4444;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Header que ocupa todo el ancho */
+.main-header {
+  background: #1e293b;
+  color: white;
+  padding: 0.8rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo h1 { margin: 0; font-size: 1.1rem; letter-spacing: 0.5px; }
+.logo span { color: #60a5fa; font-weight: bold; }
+
+/* Layout */
+.content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tarjetas */
+.action-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.action-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* Arreglo de Inputs para que no salgan oscuros */
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: #ffffff !important; /* Forzamos fondo blanco */
+  color: #1e293b !important;            /* Forzamos texto oscuro */
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+input:focus { border-color: var(--primary); ring: 2px var(--primary); }
+
+/* Botones */
+.btn-primary {
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary {
+  background: #334155;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Grilla de Libros */
+.grid-books {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.book-card {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.book-id { font-size: 0.7rem; color: var(--primary); font-weight: 800; margin-bottom: 5px; }
+.book-title { 
+    font-size: 1rem; 
+    font-weight: 600; 
+    color: var(--text-main); 
+    margin: 0 0 1.5rem 0;
+}
+
+.btn-delete {
+  background: #fff1f2;
+  color: var(--danger);
+  border: 1px solid #fecaca;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.btn-delete:hover { background: var(--danger); color: white; }
+
+/* Botón de refrescar */
+.btn-icon {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.list-header h2 { font-size: 1.25rem; margin: 0; }
