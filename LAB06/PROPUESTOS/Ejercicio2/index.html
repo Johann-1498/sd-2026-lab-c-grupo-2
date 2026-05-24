@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Estudiantes - API RESTful</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Encabezado -->
+        <header class="bg-indigo-600 text-white shadow-md p-5">
+            <div class="container mx-auto flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Registro Estudiantes</h1>
+                    <p class="text-indigo-200 text-sm">Práctica 06: API RESTful Estudiantes</p>
+                </div>
+                <span class="bg-indigo-700 px-3 py-1 rounded-full text-xs font-semibold">Client-Server Pattern</span>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="container mx-auto flex-grow p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Columna Formulario (Registrar / Editar) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
+                <h2 id="form-title" class="text-xl font-bold text-gray-800 mb-4">Registrar Estudiante</h2>
+                
+                <form id="student-form" onsubmit="guardarEstudiante(event)">
+                    <!-- ID oculto para saber si estamos editando o creando -->
+                    <input type="hidden" id="student-id">
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="codigo">Código Universitario</label>
+                        <input type="text" id="codigo" required placeholder="Ej. 20261003" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="nombre">Nombre</label>
+                        <input type="text" id="nombre" required placeholder="Ej. Juan" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="apellido">Apellido</label>
+                        <input type="text" id="apellido" required placeholder="Ej. Pérez" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="correo">Correo Electrónico</label>
+                        <input type="email" id="correo" placeholder="Ej. jperez@unsa.edu.pe" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" id="btn-submit" 
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            Guardar
+                        </button>
+                        <button type="button" id="btn-cancelar" onclick="cancelarEdicion()" class="hidden flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Columna de la Lista de Estudiantes -->
+            <div class="lg:col-span-2 flex flex-col gap-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Estudiantes Registrados</h2>
+                        <button onclick="listarEstudiantes()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-1.5 px-3 rounded-lg border border-indigo-200 text-sm transition duration-200">
+                             Sincronizar
+                        </button>
+                    </div>
+
+                    <!-- Notificaciones -->
+                    <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+                    <!-- Tabla de estudiantes -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Código</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estudiante</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Correo</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-estudiantes" class="divide-y divide-gray-200">
+                                <!-- Filas generadas dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lógica del Cliente JavaScript -->
+    <script>
+        // CORRECCIÓN: Apunta ahora al puerto 5001 para que coincida con tu servidor Flask
+        const API_URL = "http://127.0.0.1:5001/estudiantes";
+
+        // Al cargar el documento, listar los estudiantes por primera vez
+        document.addEventListener("DOMContentLoaded", listarEstudiantes);
+
+        // Mostrar alertas en pantalla
+        function showAlert(message, isError = false) {
+            const alertBox = document.getElementById("alert-box");
+            alertBox.textContent = message;
+            alertBox.className = isError 
+                ? "mb-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-200"
+                : "mb-4 p-3 rounded-lg text-sm bg-green-100 text-green-700 border border-green-200";
+            alertBox.classList.remove("hidden");
+            setTimeout(() => alertBox.classList.add("hidden"), 4000);
+        }
+
+        // 1. GET: Consultar y listar estudiantes
+        async function listarEstudiantes() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error("Error en el servidor al obtener estudiantes.");
+                const estudiantes = await res.json();
+                
+                const tbody = document.getElementById("tabla-estudiantes");
+                tbody.innerHTML = "";
+
+                if (estudiantes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400">No hay estudiantes registrados.</td></tr>`;
+                    return;
+                }
+
+                estudiantes.forEach(est => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition duration-150">
+                            <td class="px-4 py-3 text-sm font-semibold text-indigo-600">#${est.id}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700 font-mono">${est.codigo}</td>
+                            <td class="px-4 py-3 text-sm font-medium text-gray-900">${est.apellido}, ${est.nombre}</td>
+                            <td class="px-4 py-3 text-sm text-gray-500">${est.correo || '—'}</td>
+                            <td class="px-4 py-3 text-sm text-right space-x-2">
+                                <button onclick="prepararEdicion(${est.id})" class="text-indigo-600 hover:text-indigo-900 font-semibold">Editar</button>
+                                <button onclick="eliminarEstudiante(${est.id})" class="text-red-600 hover:text-red-900 font-semibold">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                showAlert(error.message, true);
+            }
+        }
+
+        // 2. POST / PUT: Guardar (Crea o edita según corresponda)
+        async function guardarEstudiante(e) {
+            e.preventDefault();
+
+            const id = document.getElementById("student-id").value;
+            const codigo = document.getElementById("codigo").value;
+            const nombre = document.getElementById("nombre").value;
+            const apellido = document.getElementById("apellido").value;
+            const correo = document.getElementById("correo").value;
+
+            const datos = { codigo, nombre, apellido, correo };
+
+            try {
+                let response;
+                if (id) {
+                    // Si existe ID, actualizamos (PUT)
+                    response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datos)
+                    });
+                } else {
+                    // Si no, registramos uno nuevo (POST)
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datos)
+                    });
+                }
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || "Error al procesar la solicitud.");
+                }
+
+                showAlert(id ? "Estudiante actualizado con éxito." : "Estudiante registrado con éxito.");
+                cancelarEdicion();
+                listarEstudiantes();
+            } catch (error) {
+                showAlert(error.message, true);
+            }
+        }
+
+        // Preparar formulario para modo edición
+        async function prepararEdicion(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                if (!response.ok) throw new Error("No se pudo obtener la información del estudiante.");
+                const est = await response.json();
+
+                document.getElementById("student-id").value = est.id;
+                document.getElementById("codigo").value = est.codigo;
+                document.getElementById("nombre").value = est.nombre;
+                document.getElementById("apellido").value = est.apellido;
+                document.getElementById("correo").value = est.correo;
+
+                document.getElementById("form-title").textContent = "Editar Estudiante";
+                document.getElementById("btn-submit").textContent = "Guardar Cambios";
+                document.getElementById("btn-submit").className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200";
+                document.getElementById("btn-cancelar").classList.remove("hidden");
+            } catch (error) {
+                showAlert(error.message, true);
+            }
+        }
+
+        // Salir del modo edición y limpiar formulario
+        function cancelarEdicion() {
+            document.getElementById("student-form").reset();
+            document.getElementById("student-id").value = "";
+            document.getElementById("form-title").textContent = "Registrar Estudiante";
+            document.getElementById("btn-submit").textContent = "Guardar";
+            document.getElementById("btn-submit").className = "flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200";
+            document.getElementById("btn-cancelar").classList.add("hidden");
+        }
+
+        // 3. DELETE: Eliminar estudiante
+        async function eliminarEstudiante(id) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar al estudiante #${id}?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error("No se pudo eliminar al estudiante.");
+
+                showAlert("Estudiante eliminado correctamente.");
+                listarEstudiantes();
+            } catch (error) {
+                showAlert(error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>
