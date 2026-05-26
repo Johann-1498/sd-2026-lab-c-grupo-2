@@ -1,19 +1,187 @@
-<!doctype html>
-<html>
-  <body>
-    <h2>Lista Productos</h2>
-    <button onclick="listar()">Consultar</button>
-    <ul id="lista"></ul>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 Gestor de Productos | API RESTful</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📦 Gestor de Productos</h1>
+                <p>API RESTful con Flask | Cliente JavaScript</p>
+            </div>
+
+            <div class="form-section">
+                <div id="message"></div>
+                <div class="form-group">
+                    <input type="text" id="productId" placeholder="ID (número)" type="number">
+                    <input type="text" id="productName" placeholder="Nombre del producto">
+                    <button class="btn btn-primary" onclick="agregarProducto()">➕ Agregar</button>
+                    <button class="btn btn-refresh" onclick="cargarProductos()">🔄 Actualizar</button>
+                </div>
+            </div>
+
+            <div class="products-section">
+                <div class="products-header">
+                    <h2>📋 Lista de Productos</h2>
+                    <span class="badge" id="productCount">0 productos</span>
+                </div>
+                <ul id="lista" class="product-list">
+                    <li class="loading">Cargando productos...</li>
+                </ul>
+            </div>
+        </div>
+        <footer>
+            🚀 API RESTful | Métodos: GET · POST · DELETE |
+        </footer>
+    </div>
+
     <script>
-      async function listar() {
-        let r = await fetch("http://127.0.0.1:5000/productos");
-        let datos = await r.json();
-        let lista = document.getElementById("lista");
-        lista.innerHTML = "";
-        datos.forEach((p) => {
-          lista.innerHTML += `<li>${p.nombre}</li>`;
-        });
-      }
+        const API_URL = "http://127.0.0.1:5000/productos";
+
+        // Mostrar mensaje temporal
+        function mostrarMensaje(texto, tipo = "success") {
+            const msgDiv = document.getElementById("message");
+            msgDiv.innerHTML = `<div class="${tipo}">${texto}</div>`;
+            setTimeout(() => {
+                if (msgDiv.firstChild) {
+                    msgDiv.firstChild.remove();
+                }
+            }, 2000);
+        }
+
+        // Cargar productos desde el backend
+        async function cargarProductos() {
+            const lista = document.getElementById("lista");
+            lista.innerHTML = '<li class="loading">⏳ Cargando productos...</li>';
+            
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const productos = await response.json();
+                mostrarProductos(productos);
+                
+                // Actualizar contador
+                const countSpan = document.getElementById("productCount");
+                countSpan.textContent = `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}`;
+                
+            } catch (error) {
+                console.error("Error:", error);
+                lista.innerHTML = `<li class="empty-message">❌ Error al cargar productos. ¿El servidor está corriendo?<br><small>${error.message}</small></li>`;
+            }
+        }
+
+        // Mostrar productos en la lista
+        function mostrarProductos(productos) {
+            const lista = document.getElementById("lista");
+            
+            if (!productos || productos.length === 0) {
+                lista.innerHTML = '<li class="empty-message">📭 No hay productos. ¡Agrega uno!</li>';
+                return;
+            }
+            
+            lista.innerHTML = "";
+            productos.forEach(producto => {
+                const li = document.createElement("li");
+                li.className = "product-item";
+                li.innerHTML = `
+                    <div class="product-info">
+                        <div class="product-id">${producto.id}</div>
+                        <span class="product-name">${escapeHtml(producto.nombre)}</span>
+                    </div>
+                    <button class="btn btn-delete" onclick="eliminarProducto(${producto.id})">
+                        🗑️ Eliminar
+                    </button>
+                `;
+                lista.appendChild(li);
+            });
+        }
+
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Agregar nuevo producto
+        async function agregarProducto() {
+            const idInput = document.getElementById("productId");
+            const nameInput = document.getElementById("productName");
+            
+            const id = idInput.value.trim();
+            const nombre = nameInput.value.trim();
+            
+            if (!id || !nombre) {
+                mostrarMensaje("⚠️ Por favor, completa ID y nombre", "error");
+                return;
+            }
+            
+            if (isNaN(id)) {
+                mostrarMensaje("⚠️ El ID debe ser un número", "error");
+                return;
+            }
+            
+            const nuevoProducto = {
+                id: parseInt(id),
+                nombre: nombre
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(nuevoProducto)
+                });
+                
+                if (response.ok) {
+                    mostrarMensaje(`✅ Producto "${nombre}" agregado correctamente`);
+                    idInput.value = "";
+                    nameInput.value = "";
+                    cargarProductos(); // Recargar lista
+                } else {
+                    mostrarMensaje("❌ Error al agregar producto", "error");
+                }
+            } catch (error) {
+                mostrarMensaje("❌ Error de conexión con el servidor", "error");
+                console.error(error);
+            }
+        }
+
+        // Eliminar producto por ID
+        async function eliminarProducto(id) {
+            if (!confirm(`¿Seguro que quieres eliminar el producto con ID ${id}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: "DELETE"
+                });
+                
+                if (response.ok) {
+                    mostrarMensaje(`🗑️ Producto ID ${id} eliminado correctamente`);
+                    cargarProductos(); // Recargar lista
+                } else {
+                    mostrarMensaje(`❌ Error al eliminar producto ID ${id}`, "error");
+                }
+            } catch (error) {
+                mostrarMensaje("❌ Error de conexión con el servidor", "error");
+                console.error(error);
+            }
+        }
+
+        // Cargar productos al iniciar la página
+        cargarProductos();
     </script>
-  </body>
+</body>
 </html>
