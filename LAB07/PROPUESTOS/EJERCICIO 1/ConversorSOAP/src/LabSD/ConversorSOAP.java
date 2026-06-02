@@ -12,5 +12,5 @@ public class ConversorSOAP implements SOAPI {
     @Override
     public double fToC(double f) {
         return (f - 32) * 5 / 9;
-    }
+    }   
 }
