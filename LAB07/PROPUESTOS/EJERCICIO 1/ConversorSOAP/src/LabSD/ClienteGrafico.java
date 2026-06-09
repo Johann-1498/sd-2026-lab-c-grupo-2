@@ -38,7 +38,7 @@ public class ClienteGrafico extends JFrame {
             Service service = Service.create(url, qname);
             this.servicioConversor = service.getPort(SOAPI.class);
         } catch (Exception e) {
-            System.out.println("Error de conexión remota: " + e.getMessage());
+             System.out.println("Error de conexión remota: " + e.getMessage());
         }
         Font fuenteTitulo = new Font("Segoe UI", Font.BOLD, 18);
         Font fuenteEtiquetas = new Font("Segoe UI", Font.BOLD, 12);
