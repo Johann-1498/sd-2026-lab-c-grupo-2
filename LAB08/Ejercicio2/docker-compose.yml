@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # NODO 1: AREQUIPA
   nodo_arequipa:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: db_arequipa
     environment:
       POSTGRES_USER: postgres
@@ -11,28 +9,27 @@ services:
       POSTGRES_DB: banco_arequipa
     ports:
       - "6432:5432"
-    
     command: ["postgres", "-c", "max_prepared_transactions=100"]
     volumes:
       - ./scripts_sql/init_arequipa.sql:/docker-entrypoint-initdb.d/init.sql
 
   # NODO 2: CUSCO
   nodo_cusco:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: db_cusco
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: banco_cusco
     ports:
-      - "6433:5432" 
+      - "6433:5432"
     command: ["postgres", "-c", "max_prepared_transactions=100"]
     volumes:
       - ./scripts_sql/init_cusco.sql:/docker-entrypoint-initdb.d/init.sql
 
   # NODO 3: TRUJILLO
   nodo_trujillo:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: db_trujillo
     environment:
       POSTGRES_USER: postgres
