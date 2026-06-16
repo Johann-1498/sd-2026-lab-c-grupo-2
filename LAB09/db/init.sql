@@ -39,8 +39,8 @@ CREATE TABLE "Envio" (
 );
 
 -- Seed Data
-INSERT INTO "Inventario" ("id", "nombre", "stock") VALUES (1, 'Manzanas', 100);
-INSERT INTO "Inventario" ("id", "nombre", "stock") VALUES (2, 'Leche', 50);
+INSERT INTO "Inventario" ("id", "nombre", "stock") VALUES (1, 'Manzanas', 1000000);
+INSERT INTO "Inventario" ("id", "nombre", "stock") VALUES (2, 'Leche', 500000);
 
 -- Adjust sequence
 SELECT setval(pg_get_serial_sequence('"Inventario"', 'id'), coalesce(max(id), 1), max(id) IS NOT null) FROM "Inventario";
