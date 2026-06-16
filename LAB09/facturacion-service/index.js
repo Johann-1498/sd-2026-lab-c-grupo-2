@@ -1,8 +1,12 @@
 const express = require('express');
+const { PrismaClient } = require('@prisma/client');
 const app = express();
+const prisma = new PrismaClient();
 app.use(express.json());
 
-let facturas = []; // Base de datos simulada
+app.get('/health', (req, res) => {
+    res.status(200).json({ servicio: 'facturacion-service', estado: 'OK' });
+});
 
 // Validador de promociones
 app.get('/api/promociones/:codigo', (req, res) => {
@@ -12,16 +16,22 @@ app.get('/api/promociones/:codigo', (req, res) => {
 });
 
 // Creación de factura con Idempotencia (Evita duplicados)
-app.post('/api/facturas', (req, res) => {
+app.post('/api/facturas', async (req, res) => {
     const { pedidoId, total } = req.body;
     
-    // Verificar si ya existe factura para este pedido
-    const existe = facturas.find(f => f.pedidoId === pedidoId);
-    if (existe) return res.status(409).json({ error: "Factura ya generada para este pedido" });
-
-    const nuevaFactura = { id: facturas.length + 1, pedidoId, total };
-    facturas.push(nuevaFactura);
-    res.status(201).json({ mensaje: "Factura generada", factura: nuevaFactura });
+    try {
+        const nuevaFactura = await prisma.factura.create({
+            data: { pedidoId, total }
+        });
+        res.status(201).json({ mensaje: "Factura generada", factura: nuevaFactura });
+    } catch (error) {
+        // En Prisma, el código P2002 indica violación de restricción única
+        if (error.code === 'P2002') {
+            return res.status(409).json({ error: "Factura ya generada para este pedido" });
+        }
+        console.error(error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
 });
 
 app.listen(3002, () => console.log('Facturación Service corriendo en puerto 3002'));

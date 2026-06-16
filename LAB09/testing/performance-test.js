@@ -7,27 +7,30 @@ export const options = {
 };
 
 export default function () {
-    const url = 'http://localhost:3005/api/pedidos';
-    
+    // 1. Prueba de creación de Pedido
+    const urlPedido = 'http://localhost:3006/api/pedidos';
     const payload = JSON.stringify({
-        usuarioId: Math.floor(Math.random() * 1000),
+        usuarioId: __VU,
         productoId: 1, 
         cantidad: 1,
         precioBase: 100
     });
+    const params = { headers: { 'Content-Type': 'application/json' } };
+    const resPedido = http.post(urlPedido, payload, params);
 
-    const params = {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    };
-
-    const res = http.post(url, payload, params);
-
-    check(res, {
-        'status es 201 (Creado)': (r) => r.status === 201,
-        'tiempo < 8000ms (Requerimiento)': (r) => r.timings.duration < 8000,
+    check(resPedido, {
+        'Pedido status es 201': (r) => r.status === 201,
+        'Pedido tiempo < 8000ms': (r) => r.timings.duration < 8000,
     });
 
-    sleep(0.5);
+    // 2. Prueba de lectura de Promociones (Facturación)
+    const urlFacturacion = 'http://localhost:3003/api/promociones/VERANO20';
+    const resFact = http.get(urlFacturacion);
+
+    check(resFact, {
+        'Facturación status es 200': (r) => r.status === 200,
+        'Facturación tiempo < 2000ms': (r) => r.timings.duration < 2000,
+    });
+
+    sleep(1);
 }

@@ -1,8 +1,13 @@
 const express = require('express');
 const axios = require('axios');
+const { PrismaClient } = require('@prisma/client');
+const { Queue } = require('bullmq');
 
 const app = express();
+const prisma = new PrismaClient();
 app.use(express.json());
+
+const notificacionQueue = new Queue('Notificaciones', { connection: { url: process.env.REDIS_URL || 'redis://localhost:6379' } });
 
 const AXIOS_TIMEOUT = 3000; // 3 segundos
 const MAX_RETRIES = 2;
@@ -22,7 +27,6 @@ async function requestWithRetry(config, serviceName) {
             });
         } catch (error) {
             // Si es error de negocio, no reintentamos.
-            // Ejemplo: inventario insuficiente = 400
             if (error.response && error.response.status < 500) {
                 error.serviceName = serviceName;
                 throw error;
@@ -63,10 +67,7 @@ app.post('/api/pedidos', async (req, res) => {
         await requestWithRetry({
             method: 'post',
             url: `${INVENTARIO_URL}/api/inventario/verificar`,
-            data: {
-                productoId,
-                cantidad
-            }
+            data: { productoId, cantidad }
         }, "Inventario");
 
         // 2. Aplicar descuento
@@ -81,37 +82,42 @@ app.post('/api/pedidos', async (req, res) => {
             }
         }
 
-        // 3. Crear pedido en BD simulada
-        const pedidoId = Math.floor(Math.random() * 1000);
+        // 3. Crear pedido en PostgreSQL
+        const nuevoPedido = await prisma.pedido.create({
+            data: {
+                usuarioId,
+                productoId,
+                cantidad,
+                totalCobrado: total,
+                estado: "CREADO"
+            }
+        });
+        const pedidoId = nuevoPedido.id;
 
         // 4. Generar factura
         await requestWithRetry({
             method: 'post',
             url: `${FACTURACION_URL}/api/facturas`,
-            data: {
-                pedidoId,
-                total
-            }
+            data: { pedidoId, total }
         }, "Facturación");
 
         // 5. Programar transporte
         const transporteResponse = await requestWithRetry({
             method: 'post',
             url: `${TRANSPORTE_URL}/api/transporte/programar`,
-            data: {
-                pedidoId,
-                usuarioId
-            }
+            data: { pedidoId, usuarioId }
         }, "Transporte");
 
-        // 6. Notificación asíncrona
-        axios.post(`${NOTIFICACION_URL}/api/notificaciones`, {
+        // Actualizar transporte en pedido
+        await prisma.pedido.update({
+            where: { id: pedidoId },
+            data: { transporte: "PROGRAMADO" }
+        });
+
+        // 6. Notificación asíncrona con BullMQ
+        await notificacionQueue.add('enviarCorreo', {
             usuarioId,
             mensaje: "Tu pedido ha sido creado y el transporte fue programado"
-        }, {
-            timeout: 2000
-        }).catch(() => {
-            console.log("Error de notificación, pero el pedido sigue");
         });
 
         // 7. Respuesta final al cliente
@@ -121,7 +127,7 @@ app.post('/api/pedidos', async (req, res) => {
                 id: pedidoId,
                 totalCobrado: total,
                 estado: "CREADO",
-                transporte: transporteResponse.data.envio
+                transporte: "PROGRAMADO"
             }
         });
 
@@ -134,13 +140,13 @@ app.post('/api/pedidos', async (req, res) => {
             msg = error.response.data.error || error.response.data.mensaje || "Error en servicio externo";
         } else if (error.code === 'ECONNABORTED') {
             msg = `Tiempo de espera agotado en el servicio de ${error.serviceName || 'servicio externo'}`;
+        } else if (error.serviceName) {
+            msg = `Fallo de comunicación con el servicio de ${error.serviceName}`;
         } else {
-            msg = `Fallo de comunicación con el servicio de ${error.serviceName || 'servicio externo'}`;
+            msg = error.message;
         }
 
-        res.status(status).json({
-            error: msg
-        });
+        res.status(status).json({ error: msg });
     }
 });
 

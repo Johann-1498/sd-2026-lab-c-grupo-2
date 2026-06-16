@@ -1,0 +1,18 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Pedido {
+  id              Int      @id @default(autoincrement())
+  usuarioId       Int
+  productoId      Int
+  cantidad        Int
+  totalCobrado    Float
+  estado          String
+  transporte      String?
+}

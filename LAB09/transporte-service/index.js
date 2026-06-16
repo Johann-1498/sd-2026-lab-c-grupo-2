@@ -1,11 +1,15 @@
 const express = require('express');
+const { PrismaClient } = require('@prisma/client');
 const app = express();
+const prisma = new PrismaClient();
 
 app.use(express.json());
 
-let envios = []; // Base de datos simulada
+app.get('/health', (req, res) => {
+    res.status(200).json({ servicio: 'transporte-service', estado: 'OK' });
+});
 
-app.post('/api/transporte/programar', (req, res) => {
+app.post('/api/transporte/programar', async (req, res) => {
     const { pedidoId, usuarioId } = req.body;
 
     if (!pedidoId || !usuarioId) {
@@ -14,22 +18,27 @@ app.post('/api/transporte/programar', (req, res) => {
         });
     }
 
-    const envio = {
-        id: envios.length + 1,
-        pedidoId,
-        usuarioId,
-        estado: "PROGRAMADO"
-    };
+    try {
+        const nuevoEnvio = await prisma.envio.create({
+            data: {
+                pedidoId,
+                usuarioId,
+                estado: "PROGRAMADO"
+            }
+        });
 
-    envios.push(envio);
-
-    res.status(201).json({
-        mensaje: "Transporte programado correctamente",
-        envio
-    });
+        res.status(201).json({
+            mensaje: "Transporte programado exitosamente",
+            envio: nuevoEnvio
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
 });
 
-app.get('/api/transporte/envios', (req, res) => {
+app.get('/api/transporte/envios', async (req, res) => {
+    const envios = await prisma.envio.findMany();
     res.status(200).json(envios);
 });
 

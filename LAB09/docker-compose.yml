@@ -9,66 +9,190 @@ networks:
 
 services:
 
-  pedidos-service:
-    build: ./pedidos-service
-    container_name: pedidos-service
-    ports:
-      - "3005:3000"
+  postgres:
+    image: postgres:16-alpine
+    container_name: logifresh_postgres
+    restart: always
     environment:
-      - PORT=3000
-      - INVENTARIO_URL=http://inventario-service:3001
-      - FACTURACION_URL=http://facturacion-service:3002
-      - NOTIFICACION_URL=http://notificacion-service:3003
-      - TRANSPORTE_URL=http://transporte-service:3004
+      POSTGRES_USER: ${POSTGRES_USER:-logifresh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecret}
+      POSTGRES_DB: ${POSTGRES_DB:-logifresh_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - logifresh-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-logifresh} -d ${POSTGRES_DB:-logifresh_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: logifresh_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - logifresh-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  influxdb:
+    image: influxdb:1.8-alpine
+    container_name: logifresh_influxdb
+    restart: always
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_USER=admin
+      - INFLUXDB_PASSWORD=adminpass
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    networks:
+      - logifresh-net
+    healthcheck:
+      test: ["CMD", "influx", "-execute", "show databases"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: logifresh_grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - logifresh-net
     depends_on:
-      - inventario-service
-      - facturacion-service
-      - notificacion-service
-      - transporte-service
-    restart: on-failure
+      influxdb:
+        condition: service_healthy
 
   inventario-service:
     build: ./inventario-service
     container_name: inventario-service
     ports:
-      - "3001:3001"
+      - "3002:3001" # 3001 is now grafana, so host port changed to 3002
+    env_file: .env
     environment:
       - PORT=3001
     networks:
       - logifresh-net
     restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   facturacion-service:
     build: ./facturacion-service
     container_name: facturacion-service
     ports:
-      - "3002:3002"
+      - "3003:3002" # Host port changed to 3003
+    env_file: .env
     environment:
       - PORT=3002
     networks:
       - logifresh-net
     restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   notificacion-service:
     build: ./notificacion-service
     container_name: notificacion-service
     ports:
-      - "3003:3003"
+      - "3004:3003" # Host port changed to 3004
+    env_file: .env
     environment:
       - PORT=3003
     networks:
       - logifresh-net
     restart: on-failure
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   transporte-service:
     build: ./transporte-service
     container_name: transporte-service
     ports:
-      - "3004:3004"
+      - "3005:3004" # Host port changed to 3005
+    env_file: .env
     environment:
       - PORT=3004
     networks:
       - logifresh-net
-    restart: on-failure  
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  pedidos-service:
+    build: ./pedidos-service
+    container_name: pedidos-service
+    ports:
+      - "3006:3000" # Changed host port to 3006 to keep it after the others
+    env_file: .env
+    environment:
+      - PORT=3000
+    networks:
+      - logifresh-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      inventario-service:
+        condition: service_healthy
+      facturacion-service:
+        condition: service_healthy
+      notificacion-service:
+        condition: service_healthy
+      transporte-service:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  influxdb_data:
+  grafana_data:
