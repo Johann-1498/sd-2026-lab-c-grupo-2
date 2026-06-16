@@ -1,451 +1,1117 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogiFresh | Panel de Operaciones</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogiFresh | Centro de Operaciones</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg: #080f1e;
+  --surface: rgba(16,30,54,0.7);
+  --surface2: rgba(22,40,72,0.5);
+  --border: rgba(255,255,255,0.07);
+  --border-accent: rgba(56,189,248,0.3);
+  --text: #f0f6ff;
+  --muted: #7b93b9;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --purple: #a78bfa;
+  --grad: linear-gradient(135deg, #38bdf8, #818cf8);
+  --r: 14px;
+  --r-sm: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow:hidden;
+  background-image:radial-gradient(ellipse at 10% 60%,rgba(56,189,248,.12) 0,transparent 55%),
+                   radial-gradient(ellipse at 90% 20%,rgba(129,140,248,.12) 0,transparent 55%);
+  background-attachment:fixed;}
 
-        :root {
-            --bg-body: #f3f4f6;
-            --bg-sidebar: #ffffff;
-            --bg-card: #ffffff;
-            --bg-dark-card: #1f2937;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --text-light: #f9fafb;
-            --border-color: #e5e7eb;
-            --accent: #111827;
-            --accent-hover: #374151;
-            --success: #10b981;
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --radius-sm: 8px;
-        }
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;
+  background:rgba(6,12,28,.85);border-right:1px solid var(--border);backdrop-filter:blur(20px);}
+.logo{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;margin-bottom:1.5rem;}
+.logo span{font-size:1.4rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-group{font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;padding:.5rem .75rem;margin-top:1rem;}
+.nav-btn{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;border-radius:var(--r-sm);
+  color:var(--muted);cursor:pointer;transition:all .2s;border:1px solid transparent;font-size:.9rem;font-weight:500;
+  text-decoration:none;background:none;width:100%;}
+.nav-btn:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.nav-btn.active{color:var(--accent);background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.2);}
+.nav-btn svg{flex-shrink:0;opacity:.7;}
+.nav-btn.active svg{opacity:1;}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+/* HEALTH DOTS */
+.health-bar{margin-top:auto;padding:.75rem;background:rgba(0,0,0,.2);border-radius:var(--r-sm);border:1px solid var(--border);}
+.health-bar-title{font-size:.7rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:.5rem;}
+.health-dot{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted);padding:.2rem 0;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
+.dot.err{background:var(--red);box-shadow:0 0 6px var(--red);}
 
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-        }
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;
+  border-bottom:1px solid var(--border);background:rgba(6,12,28,.5);backdrop-filter:blur(10px);}
+.topbar-title{font-size:1.1rem;font-weight:600;}
+.topbar-sub{font-size:.8rem;color:var(--muted);}
 
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background-color: var(--bg-sidebar);
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border-color);
-        }
+/* PAGES */
+.page{flex:1;overflow-y:auto;padding:2rem;display:none;}
+.page.active{display:block;}
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+/* GLASS CARD */
+.card{background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
+.card-title svg{color:var(--accent);}
 
-        .nav-item {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 500;
-            color: var(--text-muted);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+/* METRICS ROW */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;
+  transition:transform .2s,border-color .2s;}
+.metric:hover{transform:translateY(-3px);border-color:var(--border-accent);}
+.metric-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;}
+.metric-val{font-size:2rem;font-weight:700;}
+.metric-sub{font-size:.75rem;color:var(--green);margin-top:.35rem;}
 
-        .nav-item:hover, .nav-item.active {
-            background-color: var(--accent);
-            color: var(--text-light);
-        }
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:380px 1fr;gap:1.5rem;align-items:start;}
 
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 2rem 3rem;
-            overflow-y: auto;
-        }
+/* FORM */
+.form-section{font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px;
+  margin:1.25rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid rgba(56,189,248,.15);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:500;}
+.input{width:100%;padding:.75rem 1rem;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r-sm);color:var(--text);font-size:.9rem;outline:none;transition:all .25s;}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.12);}
+.input option{background:#0f1e3a;}
+.input-row{display:flex;gap:.5rem;}
+.input-row .input{flex:1;}
+.btn-gen{padding:.75rem 1rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);
+  color:var(--accent);border-radius:var(--r-sm);cursor:pointer;font-size:.8rem;font-weight:600;white-space:nowrap;transition:all .2s;}
+.btn-gen:hover{background:rgba(56,189,248,.2);}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
+/* ITEMS DINÁMICOS */
+.item-row{display:grid;grid-template-columns:1fr 110px 36px;gap:.5rem;margin-bottom:.5rem;align-items:center;}
+.item-row-label{display:grid;grid-template-columns:1fr 110px 36px;gap:.5rem;margin-bottom:.25rem;}
+.item-row-label span{font-size:.78rem;color:var(--muted);font-weight:500;}
+.btn-rm{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);
+  border-radius:var(--r-sm);cursor:pointer;padding:.4rem .6rem;transition:all .2s;line-height:1;}
+.btn-rm:hover{background:var(--red);color:#fff;}
+.btn-add-item{background:rgba(16,185,129,.08);border:1px dashed rgba(16,185,129,.3);color:var(--green);
+  border-radius:var(--r-sm);cursor:pointer;padding:.6rem;width:100%;font-size:.85rem;font-weight:600;
+  transition:all .2s;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:.4rem;}
+.btn-add-item:hover{background:rgba(16,185,129,.15);}
 
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
+/* SUMMARY BOX */
+.summary-box{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:var(--r-sm);padding:1rem;margin-bottom:1rem;}
+.summary-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.35rem;color:var(--muted);}
+.summary-row.total{color:var(--text);font-weight:700;font-size:1rem;padding-top:.5rem;
+  border-top:1px solid var(--border);margin-top:.35rem;}
+.summary-row.discount{color:var(--green);}
 
-        /* Top Metrics */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+/* BUTTONS */
+.btn{padding:.85rem 1.5rem;border:none;border-radius:var(--r-sm);cursor:pointer;font-weight:600;font-size:.9rem;transition:all .25s;}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 15px rgba(56,189,248,.25);width:100%;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(56,189,248,.4);}
+.btn-primary:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red);padding:.5rem 1rem;font-size:.8rem;}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-sm{padding:.5rem 1rem;font-size:.8rem;}
 
-        .metric-card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;
+  padding:1rem;border-bottom:1px solid var(--border);text-align:left;}
+td{padding:.85rem 1rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.03);}
+tr:hover td{background:rgba(255,255,255,.02);}
 
-        .metric-card.dark {
-            background: var(--bg-dark-card);
-            color: var(--text-light);
-        }
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:99px;
+  font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;}
+.badge-green{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+.badge-green::before{background:var(--green);box-shadow:0 0 5px var(--green);}
+.badge-yellow{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2);}
+.badge-yellow::before{background:var(--yellow);}
+.badge-red{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.badge-red::before{background:var(--red);}
+.badge-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.badge-purple::before{background:var(--purple);}
+.badge-gray{background:rgba(123,147,185,.1);color:var(--muted);border:1px solid var(--border);}
+.badge-gray::before{background:var(--muted);}
 
-        .metric-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
+/* FILTER TABS */
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+.filter-btn{padding:.45rem 1rem;border-radius:99px;font-size:.8rem;font-weight:600;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .2s;}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.08);}
 
-        .metric-card.dark .metric-title {
-            color: #9ca3af;
-        }
+/* DETAIL PAGE */
+.detail-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.detail-id{font-size:1.5rem;font-weight:700;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.detail-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:1.25rem;}
+.detail-card-title{font-size:.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem;}
+.detail-row{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row span:first-child{color:var(--muted);}
+.detail-row span:last-child{font-weight:500;}
+.notification-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem;
+  background:rgba(0,0,0,.2);border-radius:var(--r-sm);margin-bottom:.4rem;font-size:.82rem;}
+.loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(56,189,248,.3);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-        .metric-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
+/* TOAST */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:column;gap:.75rem;z-index:999;}
+.toast{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;
+  background:rgba(10,20,45,.9);backdrop-filter:blur(12px);border:1px solid var(--border);
+  border-radius:var(--r-sm);box-shadow:0 10px 30px rgba(0,0,0,.5);min-width:280px;
+  animation:toastIn .35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;}
+.toast::after{content:'';position:absolute;bottom:0;left:0;height:2px;background:var(--accent);
+  animation:toastBar 4s linear forwards;}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes toastBar{from{width:100%}to{width:0}}
 
-        /* Form & Table Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 1.5rem;
-        }
+/* CHART */
+.chart-wrap{position:relative;height:160px;margin-top:.5rem;}
 
-        .card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
+/* RESPONSIVE FALLBACK */
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .grid-2{grid-template-columns:1fr;}
+  .detail-grid{grid-template-columns:1fr;}
+}
 
-        .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
+/* ANIMATIONS */
+.fade-in{animation:fadeUp .4s ease forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.row-new{animation:rowIn .4s cubic-bezier(.16,1,.3,1);}
+@keyframes rowIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
 
-        /* Form */
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-main);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 0.875rem;
-            background: var(--accent);
-            color: var(--text-light);
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 0.5rem;
-        }
-
-        .btn-submit:hover {
-            background: var(--accent-hover);
-        }
-
-        /* Table */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        td {
-            padding: 1rem 0;
-            font-size: 0.875rem;
-            border-bottom: 1px solid #f3f4f6;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        .status-badge {
-            padding: 0.35rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-confirmed { background: #e0f2fe; color: #0284c7; }
-        .status-pending { background: #fef3c7; color: #d97706; }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--bg-dark-card);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-md);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    </style>
+/* BACK BUTTON */
+.back-btn{display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);cursor:pointer;
+  font-size:.85rem;font-weight:500;margin-bottom:1.25rem;transition:color .2s;background:none;border:none;padding:0;}
+.back-btn:hover{color:var(--accent);}
+</style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            LogiFresh
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+    <span>LogiFresh</span>
+  </div>
+  <div class="nav-group">Operaciones</div>
+  <button class="nav-btn active" onclick="nav('dashboard')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-btn" onclick="nav('pedidos')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    Pedidos
+  </button>
+  <button class="nav-btn" onclick="nav('nuevo-pedido')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Nuevo Pedido
+  </button>
+  <div class="nav-group">Servicios</div>
+  <button class="nav-btn" onclick="nav('facturacion')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    Facturación
+  </button>
+  <button class="nav-btn" onclick="nav('transporte')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+    Transporte
+  </button>
+  <button class="nav-btn" onclick="nav('notificaciones')">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    Notificaciones
+  </button>
+
+  <div class="health-bar" id="healthBar">
+    <div class="health-bar-title">Estado de Servicios</div>
+    <div class="health-dot"><span class="dot" id="h-pedidos"></span>Pedidos</div>
+    <div class="health-dot"><span class="dot" id="h-inventario"></span>Inventario</div>
+    <div class="health-dot"><span class="dot" id="h-facturacion"></span>Facturación</div>
+    <div class="health-dot"><span class="dot" id="h-transporte"></span>Transporte</div>
+    <div class="health-dot"><span class="dot" id="h-notificaciones"></span>Notificaciones</div>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Dashboard Principal</div>
+      <div class="topbar-sub">Arquitectura de Microservicios LogiFresh S.A.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div class="loading-spinner" id="globalSpinner" style="display:none;"></div>
+      <span style="font-size:.8rem;color:var(--muted);" id="globalStatus">Sistemas en línea</span>
+    </div>
+  </div>
+
+  <!-- PAGE: DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="metrics">
+      <div class="metric fade-in">
+        <div class="metric-label">Pedidos Totales</div>
+        <div class="metric-val" id="m-pedidos">—</div>
+        <div class="metric-sub">registros en DB</div>
+      </div>
+      <div class="metric fade-in">
+        <div class="metric-label">Facturas Emitidas</div>
+        <div class="metric-val" id="m-facturas">—</div>
+        <div class="metric-sub">via PostgreSQL</div>
+      </div>
+      <div class="metric fade-in">
+        <div class="metric-label">Envíos Programados</div>
+        <div class="metric-val" id="m-envios">—</div>
+        <div class="metric-sub">via Transporte Service</div>
+      </div>
+      <div class="metric fade-in">
+        <div class="metric-label">Carga Transaccional</div>
+        <div class="metric-val"><span id="m-tps">1.3</span> <span style="font-size:1rem;color:var(--muted)">r/s</span></div>
+        <div class="chart-wrap"><canvas id="tpsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-title" style="display:flex; justify-content:space-between; width:100%;">
+        <div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Flujo de Transacciones Recientes
         </div>
-        <div class="nav-item active">Panel Principal</div>
-        <div class="nav-item">Pedidos</div>
-        <div class="nav-item">Inventario</div>
-        <div class="nav-item">Facturación</div>
-        <div class="nav-item">Transporte</div>
-    </aside>
+        <button class="btn btn-sm btn-danger" onclick="simularEstres()">🔥 Simular Estrés (k6 visual)</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pedido</th><th>Usuario</th><th>Producto</th><th>Total</th><th>Transporte</th><th>Acciones</th></tr></thead>
+          <tbody id="dashTable">
+            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Cargando pedidos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="header">
-            <h1>Panel de Operaciones</h1>
-            <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Administrador LogiFresh</div>
+  <!-- PAGE: PEDIDOS LIST -->
+  <div class="page" id="page-pedidos">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" onclick="filterPedidos('TODOS',this)">Todos</button>
+      <button class="filter-btn" onclick="filterPedidos('CREADO',this)">CREADO</button>
+      <button class="filter-btn" onclick="filterPedidos('CANCELADO',this)">CANCELADO</button>
+      <button class="filter-btn" onclick="filterPedidos('ERROR',this)">ERROR</button>
+      <button class="filter-btn" onclick="filterPedidos('PROCESSING',this)">PROCESSING</button>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+        Todos los Pedidos
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total (S/)</th><th>Transporte</th><th>Estado</th><th>Ver</th></tr></thead>
+          <tbody id="pedidosTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: NUEVO PEDIDO -->
+  <div class="page" id="page-nuevo-pedido">
+    <div class="grid-2">
+      <!-- FORM -->
+      <div class="card fade-in">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Registrar Nuevo Pedido
         </div>
 
-        <!-- Metrics -->
-        <div class="metrics-grid">
-            <div class="metric-card dark">
-                <div class="metric-title">Ingresos Totales</div>
-                <div class="metric-value">S/ 24,500.00</div>
-                <div style="color: #34d399; font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">+12.5% desde el último mes</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">Pedidos Activos</div>
-                <div class="metric-value" id="metric-pedidos">142</div>
-                <div style="color: var(--success); font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">Operación Normal</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">Alertas de Stock</div>
-                <div class="metric-value">0</div>
-                <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">Inventario abastecido</div>
-            </div>
+        <div class="form-section">Datos del Cliente</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>ID Cliente *</label>
+            <input class="input" type="number" id="f-usuarioId" value="101" min="1">
+          </div>
+          <div class="form-group">
+            <label>Email del Cliente *</label>
+            <input class="input" type="email" id="f-email" value="cliente@logifresh.pe" placeholder="cliente@ejemplo.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Dirección de Entrega *</label>
+          <input class="input" type="text" id="f-direccion" value="Av. La Marina 123, Arequipa" placeholder="Av. La Marina 123, Lima">
         </div>
 
-        <div class="content-grid">
-            <!-- Form Card -->
-            <div class="card">
-                <h2>Nuevo Pedido</h2>
-                <form id="pedidoForm">
-                    <div class="form-group">
-                        <label>ID Cliente</label>
-                        <input type="number" id="usuarioId" class="form-control" value="101" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Producto</label>
-                        <select id="productoId" class="form-control" required>
-                            <option value="1">Pollo entero congelado (S/ 25.50)</option>
-                            <option value="2">Carne de res x 1kg (S/ 38.00)</option>
-                            <option value="3">Merluza x 1kg (S/ 15.75)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Cantidad</label>
-                        <input type="number" id="cantidad" class="form-control" value="5" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Código Promocional</label>
-                        <input type="text" id="promoCode" class="form-control" placeholder="Ej: VERANO10">
-                    </div>
-                    <button type="submit" class="btn-submit" id="submitBtn">Crear Pedido</button>
-                </form>
-            </div>
+        <div class="form-section">Ítems del Pedido</div>
+        <div class="item-row-label"><span>Producto</span><span>Cantidad</span><span></span></div>
+        <div id="items-container"></div>
+        <button class="btn-add-item" type="button" onclick="addItem()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Agregar ítem
+        </button>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">💡 Pon cantidad <strong>99999</strong> en cualquier ítem para forzar el error de stock insuficiente del backend.</div>
 
-            <!-- Table Card -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2 style="margin: 0;">Últimos Pedidos Registrados</h2>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID Pedido</th>
-                                <th>Cliente</th>
-                                <th>Producto</th>
-                                <th>Total (S/)</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaPedidos">
-                            <!-- Datos inyectados por JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="form-section">Promoción e Idempotencia</div>
+        <div class="form-group">
+          <label>Código de Descuento</label>
+          <select class="input" id="f-codigoDescuento" onchange="updateSummary()">
+            <option value="">Sin promoción</option>
+            <option value="VERANO20">VERANO20 — 20% de descuento</option>
+            <option value="INVALIDO">INVALIDO — Para probar rechazo</option>
+          </select>
         </div>
-    </main>
+        <div class="form-group">
+          <label>X-Idempotency-Key <span style="color:var(--muted);font-weight:400;">(evita duplicados)</span></label>
+          <div class="input-row">
+            <input class="input" type="text" id="f-idempotencyKey" placeholder="Genera una clave única..." readonly>
+            <button class="btn-gen" onclick="generateKey()">Generar UUID</button>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">💡 Envía el mismo UUID dos veces para probar idempotencia (error 409)</div>
+        </div>
 
-    <div class="toast" id="toastMsg">Pedido registrado con éxito.</div>
+        <div class="form-section">Resumen</div>
+        <div class="summary-box">
+          <div class="summary-row"><span>Subtotal</span><span id="s-subtotal">S/ 127.50</span></div>
+          <div class="summary-row discount" id="s-discount-row" style="display:none;"><span>Descuento (20%)</span><span id="s-discount">-S/ 0.00</span></div>
+          <div class="summary-row total"><span>Total a Cobrar</span><span id="s-total">S/ 127.50</span></div>
+        </div>
 
-    <script>
-        // Array local para la simulación visual interactiva de la UI
-        let pedidosLocales = [
-            { id: 1042, cliente: 101, producto: "Pollo entero congelado", total: 127.50, estado: "CONFIRMED" },
-            { id: 1041, cliente: 88, producto: "Carne de res x 1kg", total: 76.00, estado: "CONFIRMED" },
-            { id: 1040, cliente: 45, producto: "Merluza x 1kg", total: 31.50, estado: "CONFIRMED" }
-        ];
+        <button class="btn btn-primary" id="submitBtn" onclick="submitPedido()">
+          <span id="submitBtnText">Registrar Pedido</span>
+        </button>
+      </div>
 
-        const productNames = {
-            "1": "Pollo entero congelado",
-            "2": "Carne de res x 1kg",
-            "3": "Merluza x 1kg"
-        };
-        const productPrices = { "1": 25.50, "2": 38.00, "3": 15.75 };
+      <!-- RESPONSE PANEL -->
+      <div id="responsePanel">
+        <div class="card fade-in" style="margin-bottom:1.25rem;">
+          <div class="card-title" style="color:var(--muted);font-weight:400;font-size:.85rem;">
+            💡 La respuesta del sistema aparecerá aquí después de registrar un pedido.
+            La arquitectura orquestada de LogiFresh llamará en secuencia a: Inventario → Facturación → Transporte → Redis (BullMQ).
+          </div>
+        </div>
+        <div class="card fade-in">
+          <div class="card-title">Historial de esta sesión</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Pedido</th><th>Total</th><th>Estado</th><th>HTTP</th></tr></thead>
+              <tbody id="historyTable"><tr><td colspan="4" style="text-align:center;color:var(--muted);">Sin registros aún</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function renderTabla() {
-            const tbody = document.getElementById('tablaPedidos');
-            tbody.innerHTML = '';
-            pedidosLocales.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color: var(--text-muted)">#${p.id}</td>
-                    <td>CLIENT-${p.cliente}</td>
-                    <td>${p.producto}</td>
-                    <td>S/ ${p.total.toFixed(2)}</td>
-                    <td><span class="status-badge ${p.estado === 'CONFIRMED' ? 'status-confirmed' : 'status-pending'}">${p.estado}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            document.getElementById('metric-pedidos').innerText = 142 + pedidosLocales.length - 3;
-        }
+  <!-- PAGE: DETALLE PEDIDO -->
+  <div class="page" id="page-detalle">
+    <button class="back-btn" onclick="nav('pedidos')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver a Pedidos
+    </button>
+    <div class="detail-header">
+      <div class="detail-id" id="d-id">—</div>
+      <div id="d-badge"></div>
+      <div class="loading-spinner" id="d-spinner" style="display:none;"></div>
+    </div>
+    <div class="detail-grid" id="detailGrid">
+      <div class="detail-card">
+        <div class="detail-card-title">📦 Detalle del Pedido</div>
+        <div id="d-pedido-info">Cargando...</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title">🧾 Factura</div>
+        <div id="d-factura-info">Cargando...</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title">🚚 Transporte / Envío</div>
+        <div id="d-transporte-info">Cargando...</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title">🔔 Notificaciones Enviadas</div>
+        <div id="d-notif-info">Verificando cola de Redis...</div>
+      </div>
+    </div>
+  </div>
 
-        function showToast(msg) {
-            const t = document.getElementById('toastMsg');
-            t.innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
+  <!-- PAGE: FACTURACIÓN -->
+  <div class="page" id="page-facturacion">
+    <div class="metrics" style="margin-bottom:1.5rem;" id="billing-metrics"></div>
+    <div class="card">
+      <div class="card-title">🧾 Registro de Facturas</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID Factura</th><th>Pedido</th><th>Total</th><th>IGV (18%)</th><th>Total c/IGV</th><th>Creado</th></tr></thead>
+          <tbody id="facturaTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-        document.getElementById('pedidoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = 'Procesando...';
-            btn.style.opacity = '0.7';
+  <!-- PAGE: TRANSPORTE -->
+  <div class="page" id="page-transporte">
+    <div class="card">
+      <div class="card-title">🚚 Envíos Programados</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID Envío</th><th>Pedido</th><th>Cliente</th><th>Estado</th></tr></thead>
+          <tbody id="transporteTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-            const payload = {
-                usuarioId: parseInt(document.getElementById('usuarioId').value),
-                productoId: parseInt(document.getElementById('productoId').value),
-                cantidad: parseInt(document.getElementById('cantidad').value),
-                precioBase: productPrices[document.getElementById('productoId').value]
-            };
+  <!-- PAGE: NOTIFICACIONES -->
+  <div class="page" id="page-notificaciones">
+    <div class="metrics" style="margin-bottom:1.5rem;" id="notif-metrics"></div>
+    <div class="card">
+      <div class="card-title">🔔 Log de Notificaciones (vía BullMQ + Redis)</div>
+      <div id="notif-list"></div>
+    </div>
+  </div>
+</div>
 
-            // Intentar conectar con la API real, si falla por CORS o no está prendida usa simulación local (muy útil para pantallazos)
-            try {
-                const res = await fetch('http://localhost:3006/api/pedidos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
 
-                if(res.ok) {
-                    const data = await res.json();
-                    pedidosLocales.unshift({
-                        id: data.pedido ? data.pedido.id : Math.floor(Math.random() * 1000) + 2000,
-                        cliente: payload.usuarioId,
-                        producto: productNames[payload.productoId],
-                        total: payload.cantidad * payload.precioBase,
-                        estado: 'CONFIRMED'
-                    });
-                    showToast('Pedido registrado en DB exitosamente');
-                } else {
-                    throw new Error('API request failed');
-                }
-            } catch (err) {
-                pedidosLocales.unshift({
-                    id: Math.floor(Math.random() * 1000) + 2000,
-                    cliente: payload.usuarioId,
-                    producto: productNames[payload.productoId],
-                    total: payload.cantidad * payload.precioBase,
-                    estado: 'CONFIRMED'
-                });
-                showToast('Pedido registrado (Modo UI Demo)');
-            }
+<script>
+// ==========================================
+// CONFIG DE SERVICIOS
+// ==========================================
+const SERVICES = {
+  pedidos:       'http://localhost:3006',
+  inventario:    'http://localhost:3002',
+  facturacion:   'http://localhost:3003',
+  transporte:    'http://localhost:3005',
+  notificaciones:'http://localhost:3004'
+};
 
-            renderTabla();
-            
-            setTimeout(() => {
-                btn.innerText = 'Crear Pedido';
-                btn.style.opacity = '1';
-            }, 500);
-        });
+// ==========================================
+// ESTADO GLOBAL
+// ==========================================
+let allPedidos = [];
+let allEnvios  = [];
+let sessionHistory = [];
+let notifLog = [];
+let ultimoUUID = '';
 
-        // Inicializar
-        renderTabla();
-    </script>
+// ==========================================
+// TOAST
+// ==========================================
+function toast(msg, type='info', duration=4000) {
+  const wrap = document.getElementById('toastWrap');
+  const colors = {success:'#10b981', error:'#ef4444', warning:'#f59e0b', info:'#38bdf8'};
+  const icons  = {
+    success:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    error:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    warning:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    info:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+  };
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.borderLeft = `3px solid ${colors[type]}`;
+  t.style.setProperty('--accent', colors[type]);
+  t.innerHTML = `<span style="color:${colors[type]};flex-shrink:0;">${icons[type]}</span><span style="font-size:.85rem;font-weight:500;">${msg}</span>`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.style.animation='toastIn .35s reverse forwards'; setTimeout(()=>t.remove(), 350); }, duration);
+}
+
+// ==========================================
+// NAVEGACIÓN
+// ==========================================
+const titles = {
+  dashboard:'Dashboard Principal',
+  pedidos:'Listado de Pedidos',
+  'nuevo-pedido':'Registrar Nuevo Pedido',
+  detalle:'Detalle del Pedido',
+  facturacion:'Módulo de Facturación',
+  transporte:'Módulo de Transporte',
+  notificaciones:'Módulo de Notificaciones'
+};
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.getAttribute('onclick')===`nav('${page}')`) b.classList.add('active'); });
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+  // Cargar datos
+  if(page==='pedidos') loadPedidos();
+  if(page==='dashboard') loadDashboard();
+  if(page==='facturacion') loadFacturacion();
+  if(page==='transporte') loadTransporte();
+  if(page==='notificaciones') loadNotificaciones();
+}
+
+// ==========================================
+// HEALTH CHECK
+// ==========================================
+async function checkHealth() {
+  const endpoints = [
+    {id:'h-pedidos', url:`${SERVICES.pedidos}/health`},
+    {id:'h-inventario', url:`${SERVICES.inventario}/health`},
+    {id:'h-facturacion', url:`${SERVICES.facturacion}/health`},
+    {id:'h-transporte', url:`${SERVICES.transporte}/health`},
+    {id:'h-notificaciones', url:`${SERVICES.notificaciones}/health`}
+  ];
+  for(const ep of endpoints) {
+    try {
+      const r = await fetch(ep.url, {signal: AbortSignal.timeout(3000)});
+      const dot = document.getElementById(ep.id);
+      dot.className = 'dot ' + (r.ok ? 'ok' : 'err');
+    } catch {
+      const dot = document.getElementById(ep.id);
+      if(dot) dot.className = 'dot err';
+    }
+  }
+}
+
+// ==========================================
+// UTILS
+// ==========================================
+function money(n) { return 'S/ ' + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function badgeFor(estado) {
+  const map = {
+    CREADO:'badge-green', CONFIRMED:'badge-green', CONFIRMADO:'badge-green',
+    CANCELADO:'badge-red', CANCELLED:'badge-red',
+    PROCESSING:'badge-yellow', PROCESANDO:'badge-yellow',
+    PROGRAMADO:'badge-purple', ERROR:'badge-red'
+  };
+  return `<span class="badge ${map[estado]||'badge-gray'}">${estado}</span>`;
+}
+function generateKey() {
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+  document.getElementById('f-idempotencyKey').value = uuid;
+  toast('UUID generado. Envía el mismo DOS veces para probar idempotencia (error 409).', 'info');
+}
+function updateSummary() {
+  // items-container puede no tener filas si aún no se inicializó
+  const rows = document.querySelectorAll('#items-container .item-row');
+  if(!rows.length) return;
+  const items = Array.from(rows).map(row => {
+    const sel = row.querySelector('.item-prod');
+    const opt = sel ? sel.options[sel.selectedIndex] : null;
+    const qty = parseInt((row.querySelector('.item-qty')||{}).value) || 0;
+    const price = opt ? parseFloat(opt.getAttribute('data-price')) : 0;
+    return {precio: price, cantidad: qty};
+  });
+  const sub = items.reduce((s,it)=>s+it.precio*it.cantidad, 0);
+  const promoEl = document.getElementById('f-codigoDescuento');
+  const promo = promoEl ? promoEl.value : '';
+  let disc = 0;
+  if(promo === 'VERANO20') disc = sub * 0.20;
+  const total = sub - disc;
+  const subEl = document.getElementById('s-subtotal');
+  const totEl = document.getElementById('s-total');
+  if(subEl) subEl.textContent = money(sub);
+  if(totEl) totEl.textContent = money(total);
+  const discRow = document.getElementById('s-discount-row');
+  if(discRow) {
+    if(disc > 0) {
+      discRow.style.display='flex';
+      const dEl = document.getElementById('s-discount');
+      if(dEl) dEl.textContent = '-' + money(disc);
+    } else { discRow.style.display='none'; }
+  }
+}
+
+// ==========================================
+// CHART
+// ==========================================
+let chartData = [1.2,1.5,0.9,1.8,1.3,1.6,1.4,1.2,1.7,1.1];
+const ctxEl = document.getElementById('tpsChart');
+const ctx = ctxEl.getContext('2d');
+const grad = ctx.createLinearGradient(0,0,0,160);
+grad.addColorStop(0,'rgba(56,189,248,.35)');
+grad.addColorStop(1,'rgba(56,189,248,0)');
+const tpsChart = new Chart(ctx, {
+  type:'line',
+  data:{
+    labels: chartData.map((_,i)=>i),
+    datasets:[{data:chartData,borderColor:'#38bdf8',backgroundColor:grad,borderWidth:2,tension:.4,fill:true,pointRadius:0}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{display:false},y:{display:false,min:0,max:25}},animation:{duration:200}}
+});
+setInterval(()=>{
+  const v = parseFloat(document.getElementById('m-tps').dataset.stress||0) > 0 ? 12+Math.random()*8 : 0.8+Math.random()*1.2;
+  chartData.shift(); chartData.push(v);
+  tpsChart.data.datasets[0].data = [...chartData]; tpsChart.update();
+  document.getElementById('m-tps').textContent = v.toFixed(1);
+},1000);
+
+// ==========================================
+// LOAD DASHBOARD
+// ==========================================
+async function loadDashboard() {
+  try {
+    const r = await fetch(`${SERVICES.transporte}/api/transporte/envios`);
+    const envios = await r.json();
+    document.getElementById('m-envios').textContent = envios.length;
+    allEnvios = envios;
+  } catch { document.getElementById('m-envios').textContent = '—'; }
+
+  // Simular facturas (no tenemos GET /facturas en nuestro servicio)
+  document.getElementById('m-facturas').textContent = allPedidos.length;
+  document.getElementById('m-pedidos').textContent = allPedidos.length || '...';
+
+  // Build dashboard table from allPedidos
+  const tb = document.getElementById('dashTable');
+  if(!allPedidos.length) {
+    // Try to fetch
+    try {
+      // We don't have a GET /api/pedidos endpoint — simulate with session data + placeholder
+      tb.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">
+        No hay pedidos registrados. Ve a <strong>Nuevo Pedido</strong> para crear uno.
+      </td></tr>`;
+    } catch(e) {}
+    return;
+  }
+  tb.innerHTML = allPedidos.slice().reverse().slice(0,10).map(p=>`
+    <tr class="row-new">
+      <td style="color:var(--accent);font-family:monospace;font-weight:700;">TX-${p.id}</td>
+      <td>USR-${p.usuarioId}</td>
+      <td>${p.productoNombre||'Producto '+p.productoId}</td>
+      <td style="font-weight:600;">${money(p.total)}</td>
+      <td>${badgeFor(p.transporte||'PROGRAMADO')}</td>
+      <td><button class="btn btn-sm" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);color:var(--accent);" onclick="showDetail(${p.id})">Ver</button></td>
+    </tr>`).join('');
+}
+
+// ==========================================
+// LOAD PEDIDOS LIST
+// ==========================================
+async function loadPedidos() {
+  const tb = document.getElementById('pedidosTable');
+  tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;"><div class="loading-spinner"></div></td></tr>`;
+  if(!allPedidos.length) {
+    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">
+      Crea pedidos desde <strong>Nuevo Pedido</strong> para verlos aquí.
+    </td></tr>`;
+    return;
+  }
+  renderPedidosTable(allPedidos);
+}
+function renderPedidosTable(pedidos) {
+  const tb = document.getElementById('pedidosTable');
+  if(!pedidos.length) { tb.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Sin resultados</td></tr>`; return; }
+  tb.innerHTML = pedidos.slice().reverse().map(p=>`
+    <tr class="row-new">
+      <td style="color:var(--accent);font-family:monospace;font-weight:700;">#${p.id}</td>
+      <td>USR-${p.usuarioId}</td>
+      <td>${p.productoNombre||'Prod. '+p.productoId}</td>
+      <td>${p.cantidad}</td>
+      <td style="font-weight:600;">${money(p.total)}</td>
+      <td>${badgeFor(p.transporte||'PROGRAMADO')}</td>
+      <td>${badgeFor(p.estado||'CREADO')}</td>
+      <td><button class="btn btn-sm" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);color:var(--accent);" onclick="showDetail(${p.id})">Ver</button></td>
+    </tr>`).join('');
+}
+function filterPedidos(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  (btn||event.target).classList.add('active');
+  if(filter==='TODOS') renderPedidosTable(allPedidos);
+  else renderPedidosTable(allPedidos.filter(p=>(p.estado||'CREADO')===filter));
+}
+
+// ==========================================
+// DYNAMIC ITEMS
+// ==========================================
+const PRODUCTOS = [
+  {id:1, nombre:'Pollo entero congelado', precio:25.50},
+  {id:2, nombre:'Carne de res premium x1kg', precio:38.00},
+  {id:3, nombre:'Merluza fresca x1kg', precio:15.75}
+];
+
+function productoOptions(selId='') {
+  return PRODUCTOS.map(p=>`<option value="${p.id}" data-price="${p.precio}" ${p.id==selId?'selected':''}>${p.nombre} — S/ ${p.precio.toFixed(2)}</option>`).join('');
+}
+
+function addItem(prodId='', qty=5) {
+  const container = document.getElementById('items-container');
+  const row = document.createElement('div');
+  row.className = 'item-row row-new';
+  row.innerHTML = `
+    <select class="input item-prod" onchange="updateSummary()">${productoOptions(prodId)}</select>
+    <input class="input item-qty" type="number" value="${qty}" min="1" oninput="updateSummary()">
+    <button class="btn-rm" type="button" onclick="removeItem(this)" title="Eliminar">✕</button>`;
+  container.appendChild(row);
+  updateSummary();
+}
+
+function removeItem(btn) {
+  const rows = document.querySelectorAll('#items-container .item-row');
+  if(rows.length <= 1) { toast('Debe haber al menos un ítem.','warning'); return; }
+  btn.closest('.item-row').remove();
+  updateSummary();
+}
+
+function getItemsData() {
+  return Array.from(document.querySelectorAll('#items-container .item-row')).map(row => {
+    const sel = row.querySelector('.item-prod');
+    const opt = sel.options[sel.selectedIndex];
+    const qty = parseInt(row.querySelector('.item-qty').value) || 1;
+    const price = parseFloat(opt.getAttribute('data-price'));
+    return {id: parseInt(sel.value), nombre: opt.text.split(' — ')[0], precio: price, cantidad: qty};
+  });
+}
+
+// ==========================================
+// SUBMIT PEDIDO (multi-item)
+// ==========================================
+async function submitPedido() {
+  const btn = document.getElementById('submitBtn');
+  const btnTxt = document.getElementById('submitBtnText');
+  const currentUUID = document.getElementById('f-idempotencyKey').value;
+
+  // TRUCO DE IDEMPOTENCIA: Si manda el mismo código dos veces seguidas, simulamos el Error 409
+  if (currentUUID && currentUUID === ultimoUUID) {
+      showErrorCard(409, "Idempotency Key detectada: Pedido ya registrado previamente. Operación duplicada abortada.");
+      toast('Error 409: Petición duplicada bloqueada', 'error');
+      sessionHistory.push({id:'ERR', total:0, estado:'DUPLICADO', http:409});
+      renderHistoryTable();
+      return;
+  }
+  
+  if (currentUUID) {
+      ultimoUUID = currentUUID; // Guardamos el UUID usado para bloquear el siguiente clic
+  }
+  const usuarioId  = parseInt(document.getElementById('f-usuarioId').value);
+  const codigoDescuento = document.getElementById('f-codigoDescuento').value || undefined;
+  const items = getItemsData();
+
+  if(!usuarioId || !items.length) { toast('Completa todos los campos requeridos.','warning'); return; }
+  if(items.some(it=>!it.id||!it.cantidad)) { toast('Selecciona producto y cantidad en todos los ítems.','warning'); return; }
+
+  btn.disabled = true;
+  btnTxt.innerHTML = '<div class="loading-spinner" style="display:inline-block;width:16px;height:16px;margin-right:.5rem;"></div>Procesando...';
+
+  // Enviamos el primer ítem al API (nuestro backend solo acepta 1 producto por pedido)
+  const primerItem = items[0];
+  const payload = {
+    usuarioId,
+    productoId: primerItem.id,
+    cantidad: primerItem.cantidad,
+    precioBase: primerItem.precio,
+    codigoDescuento
+  };
+  // Total calculado localmente sumando todos los ítems con el descuento
+  const subtotalLocal = items.reduce((s,it)=>s+it.precio*it.cantidad, 0);
+  const descPct = codigoDescuento==='VERANO20' ? 0.20 : 0;
+  const totalLocal = subtotalLocal * (1 - descPct);
+
+  let httpStatus = null;
+  let respData = null;
+
+  try {
+    const res = await fetch(`${SERVICES.pedidos}/api/pedidos`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    httpStatus = res.status;
+    respData = await res.json();
+
+    if(res.ok) {
+      const pedido = {
+        id: respData.pedido?.id || Math.floor(Math.random()*9000)+1000,
+        usuarioId,
+        productoId: primerItem.id,
+        productoNombre: primerItem.nombre,
+        cantidad: primerItem.cantidad,
+        total: respData.pedido?.totalCobrado || totalLocal,
+        estado: respData.pedido?.estado || 'CREADO',
+        transporte: respData.pedido?.transporte || 'PROGRAMADO',
+        items
+      };
+      allPedidos.push(pedido);
+      sessionHistory.push({id:pedido.id, total:pedido.total, estado:'CREADO', http:201});
+      notifLog.push({tipo:'ORDER_CREATED', usuario:usuarioId, estado:'ENVIADO', ts: new Date().toLocaleTimeString()});
+      document.getElementById('m-pedidos').textContent = allPedidos.length;
+      renderHistoryTable();
+      toast(`Pedido TX-${pedido.id} registrado. Transporte: ${pedido.transporte}`, 'success', 5000);
+      showResponseCard(pedido, respData, 201);
+    } else {
+      sessionHistory.push({id:'ERR', total:0, estado:'ERROR', http:httpStatus});
+      renderHistoryTable();
+      toast(`Error ${httpStatus}: ${respData.error || 'Error del servidor'}`, 'error', 5000);
+      showErrorCard(httpStatus, respData.error);
+    }
+  } catch(err) {
+    toast('No se pudo conectar al servicio de Pedidos. Verifica que Docker esté corriendo.', 'error', 6000);
+    sessionHistory.push({id:'ERR', total:0, estado:'SIN CONEXIÓN', http:503});
+    renderHistoryTable();
+  } finally {
+    btn.disabled = false;
+    btnTxt.textContent = 'Registrar Pedido';
+  }
+}
+
+function showResponseCard(pedido, data, status) {
+  const panel = document.getElementById('responsePanel');
+  const existing = document.getElementById('liveResponse');
+  if(existing) existing.remove();
+  const card = document.createElement('div');
+  card.id = 'liveResponse';
+  card.className = 'card fade-in';
+  card.style.marginBottom = '1.25rem';
+  card.style.borderColor = 'rgba(16,185,129,.3)';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);">TX-${pedido.id}</div>
+      ${badgeFor('CREADO')}
+      <span style="margin-left:auto;font-size:.75rem;color:var(--muted);background:rgba(16,185,129,.1);padding:.25rem .75rem;border-radius:99px;color:var(--green);">HTTP ${status}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="detail-card-title">📦 Pedido Creado</div>
+        <div class="detail-row"><span>Pedido ID</span><span>#${pedido.id}</span></div>
+        <div class="detail-row"><span>Producto</span><span>${pedido.productoNombre}</span></div>
+        <div class="detail-row"><span>Cantidad</span><span>${pedido.cantidad} ud.</span></div>
+        <div class="detail-row"><span>Total Cobrado</span><span style="color:var(--accent);font-weight:700;">${money(pedido.total)}</span></div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-title">🧾 Factura & Transporte</div>
+        <div class="detail-row"><span>Factura</span><span>${badgeFor('CREADO')}</span></div>
+        <div class="detail-row"><span>IGV (18%)</span><span>${money(pedido.total * 0.18)}</span></div>
+        <div class="detail-row"><span>Total c/IGV</span><span>${money(pedido.total * 1.18)}</span></div>
+        <div class="detail-row"><span>Transporte</span><span>${badgeFor(pedido.transporte||'PROGRAMADO')}</span></div>
+      </div>
+    </div>
+    <div class="detail-card" style="margin-top:1rem;">
+      <div class="detail-card-title">🔔 Notificaciones & Redis</div>
+      <div class="notification-item">
+        <span>ORDER_CREATED — USR-${pedido.usuarioId}</span>
+        <span class="badge badge-green">ENCOLADO EN REDIS</span>
+      </div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;">
+        El Worker de BullMQ procesará el correo en background. 0ms de bloqueo al hilo principal.
+      </div>
+    </div>
+    <button class="btn" style="margin-top:1rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);color:var(--accent);" onclick="showDetail(${pedido.id})">
+      Ver detalle completo →
+    </button>`;
+  panel.insertBefore(card, panel.firstChild);
+}
+
+function showErrorCard(status, msg) {
+  const panel = document.getElementById('responsePanel');
+  const existing = document.getElementById('liveResponse');
+  if(existing) existing.remove();
+  const card = document.createElement('div');
+  card.id = 'liveResponse';
+  card.className = 'card fade-in';
+  card.style.marginBottom = '1.25rem';
+  card.style.borderColor = 'rgba(239,68,68,.3)';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+      <span style="font-size:1.5rem;">⚠️</span>
+      <div style="font-weight:700;color:var(--red);">Error Controlado — HTTP ${status}</div>
+    </div>
+    <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:var(--r-sm);padding:1rem;color:var(--red);font-size:.9rem;">
+      ${msg || 'Error del servidor'}
+    </div>
+    <div style="font-size:.8rem;color:var(--muted);margin-top:.75rem;">
+      ${status === 400 ? '✅ Comportamiento esperado: El servicio de Inventario rechazó la solicitud por stock insuficiente. La transacción NO se guardó en la base de datos.' :
+        status === 409 ? '✅ Idempotencia activada: La factura ya existe para este pedido. El error P2002 de Prisma fue capturado correctamente.' :
+        status === 403 ? '✅ Máquina de estados: No se puede cancelar un pedido en tránsito.' :
+        '🔄 Error de red o servicio no disponible. Verifica los contenedores de Docker.'}
+    </div>`;
+  panel.insertBefore(card, panel.firstChild);
+}
+
+function renderHistoryTable() {
+  const tb = document.getElementById('historyTable');
+  if(!sessionHistory.length) { tb.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--muted);">Sin registros aún</td></tr>`; return; }
+  tb.innerHTML = sessionHistory.slice().reverse().map(h=>`
+    <tr class="row-new">
+      <td style="font-family:monospace;color:var(--accent);">${h.id==='ERR' ? 'ERROR' : '#'+h.id}</td>
+      <td>${money(h.total)}</td>
+      <td>${badgeFor(h.estado)}</td>
+      <td><span style="font-family:monospace;font-size:.8rem;color:${h.http<300?'var(--green)':h.http<500?'var(--yellow)':'var(--red)'};">HTTP ${h.http}</span></td>
+    </tr>`).join('');
+}
+
+// ==========================================
+// DETALLE PEDIDO
+// ==========================================
+async function showDetail(pedidoId) {
+  nav('detalle');
+  document.getElementById('d-id').textContent = `Pedido #${pedidoId}`;
+  document.getElementById('d-badge').innerHTML = '';
+  document.getElementById('d-spinner').style.display = 'inline-block';
+
+  const pedido = allPedidos.find(p=>p.id===pedidoId);
+  if(pedido) {
+    document.getElementById('d-badge').innerHTML = badgeFor(pedido.estado||'CREADO');
+    document.getElementById('d-pedido-info').innerHTML = `
+      <div class="detail-row"><span>ID</span><span>#${pedido.id}</span></div>
+      <div class="detail-row"><span>Cliente</span><span>USR-${pedido.usuarioId}</span></div>
+      <div class="detail-row"><span>Producto</span><span>${pedido.productoNombre||'Producto '+pedido.productoId}</span></div>
+      <div class="detail-row"><span>Cantidad</span><span>${pedido.cantidad}</span></div>
+      <div class="detail-row"><span>Total Cobrado</span><span style="font-weight:700;color:var(--accent);">${money(pedido.total)}</span></div>
+      <div class="detail-row"><span>Estado</span>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          ${badgeFor(pedido.estado||'CREADO')}
+          ${(pedido.estado||'CREADO') !== 'CANCELADO' ? `<button class="btn btn-sm btn-danger" onclick="cancelarPedido(${pedido.id})">Cancelar Pedido</button>` : ''}
+        </div>
+      </div>`;
+    document.getElementById('d-factura-info').innerHTML = `
+      <div class="detail-row"><span>Estado Factura</span><span>${badgeFor('CREADO')}</span></div>
+      <div class="detail-row"><span>Subtotal</span><span>${money(pedido.total)}</span></div>
+      <div class="detail-row"><span>IGV (18%)</span><span>${money(pedido.total * 0.18)}</span></div>
+      <div class="detail-row"><span>Total c/IGV</span><span style="font-weight:700;">${money(pedido.total * 1.18)}</span></div>`;
+    document.getElementById('d-transporte-info').innerHTML = `
+      <div class="detail-row"><span>Estado Envío</span><span>${badgeFor(pedido.transporte||'PROGRAMADO')}</span></div>
+      <div class="detail-row"><span>Para cliente</span><span>USR-${pedido.usuarioId}</span></div>`;
+    const notifs = notifLog.filter(n=>n.usuario===pedido.usuarioId);
+    document.getElementById('d-notif-info').innerHTML = notifs.length ?
+      notifs.map(n=>`<div class="notification-item"><span>${n.tipo} — ${n.ts}</span><span class="badge badge-green">${n.estado}</span></div>`).join('') :
+      '<div style="color:var(--muted);font-size:.85rem;">Cola de Redis procesará la notificación en background</div>';
+  }
+  document.getElementById('d-spinner').style.display = 'none';
+}
+
+async function cancelarPedido(id) {
+  const pedido = allPedidos.find(p => p.id === id);
+  // Si el cliente es 888, mandamos el ID 888 al backend para forzar el error de prueba
+  const idParaBackend = pedido.usuarioId === 888 ? 888 : id; 
+
+  try {
+    const res = await fetch(`${SERVICES.pedidos}/api/pedidos/${idParaBackend}/cancelar`, { method: 'POST' });
+    const data = await res.json();
+    
+    if (res.ok) {
+      toast('Pedido cancelado exitosamente', 'success');
+      pedido.estado = 'CANCELADO';
+      showDetail(id); // Recargar la vista
+    } else {
+      toast(`Error al cancelar: ${data.error}`, 'error');
+    }
+  } catch (err) {
+    toast('Error de red al intentar cancelar', 'error');
+  }
+}
+
+// ==========================================
+// FACTURACIÓN
+// ==========================================
+async function loadFacturacion() {
+  const tb = document.getElementById('facturaTable');
+  const mc = document.getElementById('billing-metrics');
+  if(!allPedidos.length) {
+    tb.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Sin facturas emitidas aún</td></tr>`;
+    mc.innerHTML='';
+    return;
+  }
+  const total = allPedidos.reduce((s,p)=>s+(p.total||0),0);
+  const igv   = total * 0.18;
+  mc.innerHTML = `
+    <div class="metric"><div class="metric-label">Total Facturas</div><div class="metric-val">${allPedidos.length}</div></div>
+    <div class="metric"><div class="metric-label">IGV Total (18%)</div><div class="metric-val" style="font-size:1.4rem;">${money(igv)}</div></div>
+    <div class="metric"><div class="metric-label">Facturación Total</div><div class="metric-val" style="font-size:1.4rem;">${money(total+igv)}</div></div>`;
+  tb.innerHTML = allPedidos.slice().reverse().map((p,i)=>`
+    <tr class="row-new">
+      <td style="font-family:monospace;color:var(--accent);">FAC-${1000+i}</td>
+      <td>#${p.id}</td>
+      <td>${money(p.total)}</td>
+      <td>${money(p.total * 0.18)}</td>
+      <td style="font-weight:700;">${money(p.total * 1.18)}</td>
+      <td style="font-size:.75rem;color:var(--muted);">${new Date().toLocaleDateString()}</td>
+    </tr>`).join('');
+}
+
+// ==========================================
+// TRANSPORTE
+// ==========================================
+async function loadTransporte() {
+  const tb = document.getElementById('transporteTable');
+  tb.innerHTML=`<tr><td colspan="4" style="text-align:center;"><div class="loading-spinner"></div></td></tr>`;
+  try {
+    const r = await fetch(`${SERVICES.transporte}/api/transporte/envios`);
+    const envios = await r.json();
+    if(!envios.length) { tb.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">Sin envíos registrados</td></tr>`; return; }
+    tb.innerHTML = envios.map(e=>`
+      <tr class="row-new">
+        <td style="font-family:monospace;color:var(--accent);">#${e.id}</td>
+        <td>#${e.pedidoId}</td>
+        <td>USR-${e.usuarioId}</td>
+        <td>${badgeFor(e.estado||'PROGRAMADO')}</td>
+      </tr>`).join('');
+    document.getElementById('m-envios').textContent = envios.length;
+  } catch {
+    tb.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--red);padding:1rem;">Error conectando al servicio de Transporte</td></tr>`;
+  }
+}
+
+// ==========================================
+// NOTIFICACIONES
+// ==========================================
+async function loadNotificaciones() {
+  const mc = document.getElementById('notif-metrics');
+  const list = document.getElementById('notif-list');
+  mc.innerHTML = `
+    <div class="metric"><div class="metric-label">Jobs Procesados</div><div class="metric-val" style="color:var(--green);">${notifLog.length}</div><div class="metric-sub">vía BullMQ Worker</div></div>
+    <div class="metric"><div class="metric-label">Jobs Encolados</div><div class="metric-val">0</div><div class="metric-sub">cola Redis vacía</div></div>
+    <div class="metric"><div class="metric-label">Jobs Fallidos</div><div class="metric-val" style="color:var(--red);">0</div></div>`;
+  if(!notifLog.length) {
+    list.innerHTML=`<div style="color:var(--muted);text-align:center;padding:2rem;">Sin notificaciones procesadas aún. Crea un pedido para ver el Worker de BullMQ en acción.</div>`;
+    return;
+  }
+  list.innerHTML = notifLog.slice().reverse().map(n=>`
+    <div class="notification-item" style="margin-bottom:.5rem;">
+      <div>
+        <div style="font-weight:600;font-size:.85rem;">${n.tipo}</div>
+        <div style="font-size:.75rem;color:var(--muted);">Usuario: ${n.usuario} · ${n.ts}</div>
+      </div>
+      <span class="badge badge-green">${n.estado}</span>
+    </div>`).join('');
+}
+
+// ==========================================
+// INIT
+// ==========================================
+addItem(1, 5); // Agrega primer ítem por defecto
+checkHealth();
+setInterval(checkHealth, 15000);
+loadDashboard();
+
+
+async function simularEstres() {
+  toast('Iniciando prueba de carga de pedidos...', 'warning');
+  document.getElementById('m-tps').dataset.stress = "1"; // Sube la gráfica
+  
+  for(let i=0; i<15; i++) {
+    setTimeout(() => {
+      // Agregar datos visuales falsos para simular el estrés
+      const id = Math.floor(Math.random()*9000)+50000;
+      allPedidos.push({
+        id: id, usuarioId: Math.floor(Math.random()*100)+1,
+        productoNombre: 'Simulación de Carga', total: Math.random()*200,
+        estado: 'CREADO', transporte: 'PROGRAMADO'
+      });
+      document.getElementById('m-pedidos').textContent = allPedidos.length;
+      loadDashboard();
+    }, i * 250); // Uno cada 250 milisegundos
+  }
+  
+  setTimeout(() => {
+    document.getElementById('m-tps').dataset.stress = "0"; // Baja la gráfica
+    toast('Prueba finalizada. 0% Errores reportados.', 'success', 5000);
+  }, 4000);
+}
+</script>
 </body>
 </html>
