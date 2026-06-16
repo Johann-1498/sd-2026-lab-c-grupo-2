@@ -13,18 +13,20 @@ services:
     build: ./pedidos-service
     container_name: pedidos-service
     ports:
-      - "3000:3000"
+      - "3005:3000"
     environment:
       - PORT=3000
       - INVENTARIO_URL=http://inventario-service:3001
       - FACTURACION_URL=http://facturacion-service:3002
       - NOTIFICACION_URL=http://notificacion-service:3003
+      - TRANSPORTE_URL=http://transporte-service:3004
     networks:
       - logifresh-net
     depends_on:
       - inventario-service
       - facturacion-service
       - notificacion-service
+      - transporte-service
     restart: on-failure
 
   inventario-service:
@@ -59,3 +61,14 @@ services:
     networks:
       - logifresh-net
     restart: on-failure
+
+  transporte-service:
+    build: ./transporte-service
+    container_name: transporte-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+    networks:
+      - logifresh-net
+    restart: on-failure  
