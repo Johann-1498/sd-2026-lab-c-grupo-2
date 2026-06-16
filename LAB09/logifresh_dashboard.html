@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiFresh | Panel de Operaciones</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-body: #f3f4f6;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-dark-card: #1f2937;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --text-light: #f9fafb;
+            --border-color: #e5e7eb;
+            --accent: #111827;
+            --accent-hover: #374151;
+            --success: #10b981;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--accent);
+            color: var(--text-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* Top Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metric-card.dark {
+            background: var(--bg-dark-card);
+            color: var(--text-light);
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .metric-card.dark .metric-title {
+            color: #9ca3af;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Form & Table Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--accent);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Table */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #f3f4f6;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-confirmed { background: #e0f2fe; color: #0284c7; }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-dark-card);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            LogiFresh
+        </div>
+        <div class="nav-item active">Panel Principal</div>
+        <div class="nav-item">Pedidos</div>
+        <div class="nav-item">Inventario</div>
+        <div class="nav-item">Facturación</div>
+        <div class="nav-item">Transporte</div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Panel de Operaciones</h1>
+            <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Administrador LogiFresh</div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card dark">
+                <div class="metric-title">Ingresos Totales</div>
+                <div class="metric-value">S/ 24,500.00</div>
+                <div style="color: #34d399; font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">+12.5% desde el último mes</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Pedidos Activos</div>
+                <div class="metric-value" id="metric-pedidos">142</div>
+                <div style="color: var(--success); font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">Operación Normal</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Alertas de Stock</div>
+                <div class="metric-value">0</div>
+                <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem; font-weight: 500;">Inventario abastecido</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Form Card -->
+            <div class="card">
+                <h2>Nuevo Pedido</h2>
+                <form id="pedidoForm">
+                    <div class="form-group">
+                        <label>ID Cliente</label>
+                        <input type="number" id="usuarioId" class="form-control" value="101" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Producto</label>
+                        <select id="productoId" class="form-control" required>
+                            <option value="1">Pollo entero congelado (S/ 25.50)</option>
+                            <option value="2">Carne de res x 1kg (S/ 38.00)</option>
+                            <option value="3">Merluza x 1kg (S/ 15.75)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="cantidad" class="form-control" value="5" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Código Promocional</label>
+                        <input type="text" id="promoCode" class="form-control" placeholder="Ej: VERANO10">
+                    </div>
+                    <button type="submit" class="btn-submit" id="submitBtn">Crear Pedido</button>
+                </form>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0;">Últimos Pedidos Registrados</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Pedido</th>
+                                <th>Cliente</th>
+                                <th>Producto</th>
+                                <th>Total (S/)</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPedidos">
+                            <!-- Datos inyectados por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toastMsg">Pedido registrado con éxito.</div>
+
+    <script>
+        // Array local para la simulación visual interactiva de la UI
+        let pedidosLocales = [
+            { id: 1042, cliente: 101, producto: "Pollo entero congelado", total: 127.50, estado: "CONFIRMED" },
+            { id: 1041, cliente: 88, producto: "Carne de res x 1kg", total: 76.00, estado: "CONFIRMED" },
+            { id: 1040, cliente: 45, producto: "Merluza x 1kg", total: 31.50, estado: "CONFIRMED" }
+        ];
+
+        const productNames = {
+            "1": "Pollo entero congelado",
+            "2": "Carne de res x 1kg",
+            "3": "Merluza x 1kg"
+        };
+        const productPrices = { "1": 25.50, "2": 38.00, "3": 15.75 };
+
+        function renderTabla() {
+            const tbody = document.getElementById('tablaPedidos');
+            tbody.innerHTML = '';
+            pedidosLocales.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted)">#${p.id}</td>
+                    <td>CLIENT-${p.cliente}</td>
+                    <td>${p.producto}</td>
+                    <td>S/ ${p.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${p.estado === 'CONFIRMED' ? 'status-confirmed' : 'status-pending'}">${p.estado}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('metric-pedidos').innerText = 142 + pedidosLocales.length - 3;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMsg');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('pedidoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'Procesando...';
+            btn.style.opacity = '0.7';
+
+            const payload = {
+                usuarioId: parseInt(document.getElementById('usuarioId').value),
+                productoId: parseInt(document.getElementById('productoId').value),
+                cantidad: parseInt(document.getElementById('cantidad').value),
+                precioBase: productPrices[document.getElementById('productoId').value]
+            };
+
+            // Intentar conectar con la API real, si falla por CORS o no está prendida usa simulación local (muy útil para pantallazos)
+            try {
+                const res = await fetch('http://localhost:3006/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    const data = await res.json();
+                    pedidosLocales.unshift({
+                        id: data.pedido ? data.pedido.id : Math.floor(Math.random() * 1000) + 2000,
+                        cliente: payload.usuarioId,
+                        producto: productNames[payload.productoId],
+                        total: payload.cantidad * payload.precioBase,
+                        estado: 'CONFIRMED'
+                    });
+                    showToast('Pedido registrado en DB exitosamente');
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (err) {
+                pedidosLocales.unshift({
+                    id: Math.floor(Math.random() * 1000) + 2000,
+                    cliente: payload.usuarioId,
+                    producto: productNames[payload.productoId],
+                    total: payload.cantidad * payload.precioBase,
+                    estado: 'CONFIRMED'
+                });
+                showToast('Pedido registrado (Modo UI Demo)');
+            }
+
+            renderTabla();
+            
+            setTimeout(() => {
+                btn.innerText = 'Crear Pedido';
+                btn.style.opacity = '1';
+            }, 500);
+        });
+
+        // Inicializar
+        renderTabla();
+    </script>
+</body>
+</html>
