@@ -1,1 +1,61 @@
-# (Esto lo hace el Integrante 1)
+version: '3.8'
+
+networks:
+  logifresh-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+services:
+
+  pedidos-service:
+    build: ./pedidos-service
+    container_name: pedidos-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - INVENTARIO_URL=http://inventario-service:3001
+      - FACTURACION_URL=http://facturacion-service:3002
+      - NOTIFICACION_URL=http://notificacion-service:3003
+    networks:
+      - logifresh-net
+    depends_on:
+      - inventario-service
+      - facturacion-service
+      - notificacion-service
+    restart: on-failure
+
+  inventario-service:
+    build: ./inventario-service
+    container_name: inventario-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    networks:
+      - logifresh-net
+    restart: on-failure
+
+  facturacion-service:
+    build: ./facturacion-service
+    container_name: facturacion-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+    networks:
+      - logifresh-net
+    restart: on-failure
+
+  notificacion-service:
+    build: ./notificacion-service
+    container_name: notificacion-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+    networks:
+      - logifresh-net
+    restart: on-failure

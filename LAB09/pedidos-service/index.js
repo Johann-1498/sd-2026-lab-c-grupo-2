@@ -5,15 +5,18 @@ app.use(express.json());
 
 app.post('/api/pedidos', async (req, res) => {
     const { usuarioId, productoId, cantidad, precioBase, codigoDescuento } = req.body;
+    const INVENTARIO_URL   = process.env.INVENTARIO_URL   || 'http://localhost:3001';
+    const FACTURACION_URL  = process.env.FACTURACION_URL  || 'http://localhost:3002';
+    const NOTIFICACION_URL = process.env.NOTIFICACION_URL || 'http://localhost:3003';
     let total = precioBase * cantidad;
 
     try {
         // 1. Verificar inventario
-        await axios.post('http://localhost:3001/api/inventario/verificar', { productoId, cantidad });
+        await axios.post(`${INVENTARIO_URL}/api/inventario/verificar`, { productoId, cantidad });
 
         // 2. Aplicar descuento (Soluciona: Pedidos sin descuento)
         if (codigoDescuento) {
-            const promo = await axios.get(`http://localhost:3002/api/promociones/${codigoDescuento}`);
+            const promo = await axios.get(`${FACTURACION_URL}/api/promociones/${codigoDescuento}`);
             if (promo.data.valido) total = total - (total * promo.data.descuento);
         }
 
@@ -21,11 +24,11 @@ app.post('/api/pedidos', async (req, res) => {
         const pedidoId = Math.floor(Math.random() * 1000);
 
         // 4. Generar Factura
-        await axios.post('http://localhost:3002/api/facturas', { pedidoId, total });
+        await axios.post(`${FACTURACION_URL}/api/facturas`, { pedidoId, total });
 
         // 5. Notificación ASÍNCRONA (Soluciona lentitud de 8 segundos). 
         // Nota: NO usamos "await" aquí a propósito para no bloquear la respuesta.
-        axios.post('http://localhost:3003/api/notificaciones', { 
+        axios.post(`${NOTIFICACION_URL}/api/notificaciones`, {
             usuarioId, mensaje: "Tu pedido ha sido creado" 
         }).catch(err => console.log("Error de notificación, pero el pedido sigue"));
 
