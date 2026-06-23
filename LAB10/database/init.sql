@@ -31,6 +31,7 @@ CREATE TABLE temperaturas (
     almacen VARCHAR(255) NOT NULL,
     temperatura DECIMAL(5,2) NOT NULL,
     sede VARCHAR(100) NOT NULL,
+    alerta VARCHAR(150) DEFAULT 'Temperatura normal',
     registrado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -40,6 +41,7 @@ CREATE TABLE envios (
     pedido_id INTEGER REFERENCES pedidos(id) ON DELETE CASCADE,
     estado VARCHAR(50) NOT NULL DEFAULT 'En preparación',
     ubicacion VARCHAR(255) NOT NULL,
+    sede VARCHAR(100) NOT NULL DEFAULT 'Lima',
     actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

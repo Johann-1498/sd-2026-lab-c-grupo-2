@@ -51,8 +51,8 @@ class Vehiculo(Base):
     __tablename__ = "vehiculos"
 
     id = Column(Integer, primary_key=True, index=True)
-    placa = Column(String(20), nullable=False)
-    latitud = Column(Float, nullable=False)
-    longitud = Column(Float, nullable=False)
+    placa = Column(String(20), nullable=False, unique=True)
+    latitud = Column(Float, nullable=False)  
+    longitud = Column(Float, nullable=False)  
     sede = Column(String(50), nullable=False)
     actualizado_en = Column(DateTime, default=datetime.utcnow)

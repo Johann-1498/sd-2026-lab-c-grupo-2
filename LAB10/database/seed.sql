@@ -37,17 +37,17 @@ INSERT INTO temperaturas (almacen, temperatura, sede) VALUES
 ('Almacén Oeste - Lima', 22.2, 'Lima');
 
 -- Insertar envíos
-INSERT INTO envios (pedido_id, estado, ubicacion) VALUES
-(1, 'En tránsito', 'Carretera Panamericana - Km 45'),
-(2, 'Entregado', 'Miraflores - Tienda Principal'),
-(3, 'En preparación', 'Centro de Distribución - Callao'),
-(4, 'En tránsito', 'Avenida Javier Prado - Este'),
-(5, 'Entregado', 'San Isidro - Oficina Central'),
-(6, 'Pendiente', 'Almacén - Zona Norte'),
-(7, 'En tránsito', 'Carretera a Chorrillos'),
-(8, 'Entregado', 'Barranco - Restaurante'),
-(9, 'En preparación', 'Centro de Empaque - Lima'),
-(10, 'En tránsito', 'Avenida La Marina - Este');
+INSERT INTO envios (pedido_id, estado, ubicacion, sede) VALUES
+(1, 'En tránsito', 'Carretera Panamericana - Km 45', 'Lima'),
+(2, 'Entregado', 'Miraflores - Tienda Principal', 'Lima'),
+(3, 'En preparación', 'Centro de Distribución - Callao', 'Lima'),
+(4, 'En tránsito', 'Avenida Javier Prado - Este', 'Lima'),
+(5, 'Entregado', 'San Isidro - Oficina Central', 'Lima'),
+(6, 'Pendiente', 'Almacén - Zona Norte', 'Lima'),
+(7, 'En tránsito', 'Carretera a Chorrillos', 'Lima'),
+(8, 'Entregado', 'Barranco - Restaurante', 'Lima'),
+(9, 'En preparación', 'Centro de Empaque - Lima', 'Lima'),
+(10, 'En tránsito', 'Avenida La Marina - Este', 'Lima');
 
 -- Insertar vehículos
 INSERT INTO vehiculos (placa, latitud, longitud, sede) VALUES
