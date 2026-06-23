@@ -1,0 +1,1 @@
+-- Archivo reservado para el Integrante 3 (Scripts de Tablas y Replicación)
