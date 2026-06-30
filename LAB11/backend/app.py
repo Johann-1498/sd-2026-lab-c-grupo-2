@@ -35,4 +35,15 @@ def pagos():
     return jsonify({"data": "Pago procesado (simulado)"})
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    cert_path = os.path.join(BASE_DIR, "certs", "cert.pem")
+    key_path = os.path.join(BASE_DIR, "certs", "key.pem")
+    
+    print("\n=======================================================")
+    print(" INICIANDO SERVIDOR SEGURO FLASK (HTTPS) - LOGIMARKET ")
+    print(f" Certificado: {cert_path}")
+    print(f" Llave Privada: {key_path}")
+    print("=======================================================\n")
+    
+    # 2. Arrancamos Flask inyectando el contexto SSL nativo usando tus certificados generados
+    app.run(debug=True, port=5000, ssl_context=(cert_path, key_path))

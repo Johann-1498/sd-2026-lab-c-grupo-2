@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+		"name": "LogiMarket - Laboratorio 11 HTTPS",
+		"description": "Colección de pruebas para la API segura de LogiMarket Perú S.A.C. implementada con HTTPS y JWT.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Login - Admin (Obtener JWT)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin1\",\n    \"password\": \"admin123\",\n    \"mfa_code\": \"111111\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:5000/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Ver Perfil Autenticado",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer TU_TOKEN_JWT_AQUI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:5000/perfil",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"perfil"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Consultar Inventario (Admin / Empleado)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer TU_TOKEN_JWT_AQUI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:5000/inventario",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"inventario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Procesar Pagos (Solo Admin)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer TU_TOKEN_JWT_AQUI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:5000/pagos",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"pagos"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
