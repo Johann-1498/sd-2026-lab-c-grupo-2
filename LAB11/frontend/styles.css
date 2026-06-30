@@ -1,0 +1,177 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f3f6fb;
+    color: #1f2937;
+}
+
+.login-container,
+.dashboard-container {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.login-container {
+    max-width: 460px;
+}
+
+h1 {
+    margin-bottom: 5px;
+    color: #0f172a;
+}
+
+h2 {
+    margin-top: 0;
+    color: #2563eb;
+}
+
+.description {
+    color: #4b5563;
+    margin-bottom: 25px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+button {
+    padding: 12px 16px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+button.danger {
+    background: #dc2626;
+}
+
+button.danger:hover {
+    background: #b91c1c;
+}
+
+.users-box {
+    margin-top: 25px;
+    padding: 15px;
+    background: #eff6ff;
+    border-left: 5px solid #2563eb;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.success {
+    color: #15803d;
+}
+
+.error {
+    color: #dc2626;
+}
+
+.token-box {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    word-break: break-all;
+}
+
+.actions {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.response-box {
+    background: #0f172a;
+    color: #d1fae5;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+.status-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.status-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.status-card h3 {
+    margin-top: 0;
+    color: #0f172a;
+}
+
+.status-card p {
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.history-box {
+    margin-top: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.history-box ul {
+    padding-left: 20px;
+}
+
+.history-box li {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.response-box {
+    min-height: 230px;
+}
+
+#responseOutput {
+    min-height: 160px;
+}

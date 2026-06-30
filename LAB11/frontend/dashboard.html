@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>LogiMarket - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Dashboard - LogiMarket</h1>
+            <p>Consumo de APIs protegidas mediante JWT, RBAC, HTTPS, Rate Limiting y Auditoría.</p>
+        </header>
+
+        <section class="token-box">
+            <h3>Token JWT activo</h3>
+            <p id="tokenPreview">Cargando token...</p>
+        </section>
+
+        <section class="actions">
+            <button type="button" onclick="callApi('/perfil', 'GET', 'Perfil del usuario')">Ver perfil</button>
+            <button type="button" onclick="callApi('/inventario', 'GET', 'Inventario')">Ver inventario</button>
+            <button type="button" onclick="callApi('/pagos', 'POST', 'Procesar pago')">Procesar pago</button>
+            <button type="button" onclick="callApi('/logistica', 'GET', 'Logística')">Ver logística</button>
+            <button type="button" onclick="callApi('/auditoria', 'GET', 'Auditoría')">Ver auditoría</button>
+            <button type="button" class="danger" onclick="logout()">Cerrar sesión</button>
+        </section>
+
+        <section class="status-panel">
+            <div class="status-card">
+                <h3>Última acción</h3>
+                <p id="lastAction">Aún no se ejecutó ninguna acción.</p>
+            </div>
+
+            <div class="status-card">
+                <h3>Estado HTTP</h3>
+                <p id="statusCode">---</p>
+            </div>
+
+            <div class="status-card">
+                <h3>Resultado</h3>
+                <p id="statusMessage">Esperando solicitud...</p>
+            </div>
+        </section>
+
+        <section class="response-box">
+            <h3>Respuesta del servidor</h3>
+            <pre id="responseOutput">Presiona un botón para consumir una API protegida.</pre>
+        </section>
+
+        <section class="history-box">
+            <h3>Historial de acciones</h3>
+            <ul id="historyList">
+                <li>No hay acciones registradas en la interfaz.</li>
+            </ul>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
